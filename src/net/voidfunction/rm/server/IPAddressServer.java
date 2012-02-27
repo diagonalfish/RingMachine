@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
-import net.voidfunction.rm.common.HTTPUtils;
+import net.voidfunction.rm.common.http.HTTPUtils;
 
 import com.sun.net.httpserver.*;
+
 /**
  * Simple web server that returns IP address of connecting client.
  * Used by RingMachine clients to figure out their public IP.

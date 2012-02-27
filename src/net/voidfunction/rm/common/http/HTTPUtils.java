@@ -1,4 +1,4 @@
-package net.voidfunction.rm.common;
+package net.voidfunction.rm.common.http;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
