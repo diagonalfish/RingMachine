@@ -6,6 +6,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
+/**
+ * Simple HTTP client to fetch IP address from a web page that has only an IP address.
+ */
 public class IPAddressClient {
 
 	public URL url;

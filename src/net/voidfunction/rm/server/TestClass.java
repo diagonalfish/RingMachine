@@ -19,6 +19,7 @@ public class TestClass {
 		System.out.println(new IPAddressClient("http://whatismyip.org/").getMyIP());
 		System.out.println(new IPAddressClient("http://ifconfig.me/ip").getMyIP());
 		System.out.println(new IPAddressClient("http://myip.dnsomatic.com/").getMyIP());
+		System.out.println(new IPAddressClient("http://myip.xname.org/").getMyIP());
 		
 	}
 	
