@@ -57,6 +57,10 @@ public class TestClass extends JGroupsListener {
 		netmgr.addListener(new TestClass());
 		
 		netmgr.connect();
+		
+		RMPacket p = new RMPacket(RMPacket.Type.INFO);
+		p.setDataVal("test", true);
+		System.out.println(p.getBoolean("test"));
 	}
 	
 	public void onConnect() {

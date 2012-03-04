@@ -91,6 +91,10 @@ public class JGroupsManager {
 		}
 	}
 	
+	public Address getMyAddress() {
+		return jch.getAddress();
+	}
+	
 	public void connect() {
 		try {
 			reset();
@@ -141,12 +145,7 @@ public class JGroupsManager {
 	private class JGroupsCombinedListener extends ReceiverAdapter implements ChannelListener {
 
 		public void channelClosed(Channel channel) {
-			/* might break stuff
-			reset();
-			for (JGroupsListener listener : listeners) {
-				listener.onDisconnect();
-			}
-			*/
+			//Nothing
 		}
 
 		public void channelConnected(Channel channel) {
@@ -206,6 +205,7 @@ public class JGroupsManager {
 					listener.onPeerLeave(lostPeer);
 				}
 	    	}
+	    	curView = newView;
 	    }
 
 	    public void suspect(Address mbr) {

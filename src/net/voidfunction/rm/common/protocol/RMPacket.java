@@ -2,6 +2,7 @@ package net.voidfunction.rm.common.protocol;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,12 +32,60 @@ public class RMPacket implements Serializable {
 		return data.containsKey(key);
 	}
 	
-	public Serializable getDataVal(String key) {
-		return data.get(key);
+	public void setDataVal(String key, Serializable value) {
+		data.put(key.toLowerCase(), value);
 	}
 	
-	public void setDataVal(String key, Serializable value) {
-		data.put(key, value);
+	public Integer getInteger(String key) {
+		try {
+			Object d = data.get(key.toLowerCase());
+			if (d == null) return null;
+			return (Integer)d;
+		} catch (ClassCastException e) {
+			return null;
+		}
+	}
+	
+	public Double getDouble(String key) {
+		try {
+			Object d = data.get(key.toLowerCase());
+			if (d == null) return null;
+			return (Double)d;
+		} catch (ClassCastException e) {
+			return null;
+		}
 	}
 
+	public Double getString(String key) {
+		try {
+			Object d = data.get(key.toLowerCase());
+			if (d == null) return null;
+			return (Double)d;
+		} catch (ClassCastException e) {
+			return null;
+		}
+	}
+	
+	public Boolean getBoolean(String key) {
+		try {
+			Object d = data.get(key.toLowerCase());
+			if (d == null) return null;
+			return (Boolean)d;
+		} catch (ClassCastException e) {
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Object> getList(String key) {
+		try {
+			Object d = data.get(key.toLowerCase());
+			if (d == null) return null;
+			return (List<Object>)d;
+		} catch (ClassCastException e) {
+			System.out.println("EXCEPTION'd");
+			return null;
+		}
+	}
+	
 }
