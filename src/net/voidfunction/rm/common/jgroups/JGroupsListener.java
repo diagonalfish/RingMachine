@@ -15,8 +15,6 @@ import org.jgroups.Address;
 public abstract class JGroupsListener {
 
 	public void onConnect() {}
-	
-	public void onDisconnect() {}
 
 	public void onMessage(Address source, RMPacket message) {}
 	
