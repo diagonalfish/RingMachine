@@ -1,5 +1,6 @@
 package net.voidfunction.rm.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +11,7 @@ import java.util.List;
 import org.apache.log4j.PropertyConfigurator;
 import org.jgroups.Address;
 
+import net.voidfunction.rm.common.files.FileUtils;
 import net.voidfunction.rm.common.http.IPAddressClient;
 import net.voidfunction.rm.common.jgroups.JGroupsManager;
 import net.voidfunction.rm.common.jgroups.JGroupsListener;
@@ -57,10 +59,6 @@ public class TestClass extends JGroupsListener {
 		netmgr.addListener(new TestClass());
 		
 		netmgr.connect();
-		
-		RMPacket p = new RMPacket(RMPacket.Type.INFO);
-		p.setDataVal("test", true);
-		System.out.println(p.getBoolean("test"));
 	}
 	
 	public void onConnect() {
