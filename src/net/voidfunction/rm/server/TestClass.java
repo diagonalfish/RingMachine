@@ -11,11 +11,11 @@ import java.util.List;
 import org.apache.log4j.PropertyConfigurator;
 import org.jgroups.Address;
 
+import net.voidfunction.rm.common.cluster.RMPacket;
 import net.voidfunction.rm.common.files.FileUtils;
 import net.voidfunction.rm.common.http.IPAddressClient;
 import net.voidfunction.rm.common.jgroups.JGroupsManager;
 import net.voidfunction.rm.common.jgroups.JGroupsListener;
-import net.voidfunction.rm.common.protocol.RMPacket;
 
 public class TestClass extends JGroupsListener {
 

@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import net.voidfunction.rm.common.protocol.RMPacket;
+import net.voidfunction.rm.common.cluster.RMPacket;
 
 import org.jgroups.Address;
 

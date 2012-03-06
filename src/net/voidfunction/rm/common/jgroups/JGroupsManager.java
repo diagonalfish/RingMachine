@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.voidfunction.rm.common.protocol.RMPacket;
+import net.voidfunction.rm.common.cluster.RMPacket;
 
 import org.jgroups.*;
 import org.jgroups.protocols.*;
