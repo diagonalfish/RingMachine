@@ -1,6 +1,7 @@
-package net.voidfunction.rm.server;
+package net.voidfunction.rm.master;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,34 +20,38 @@ public class FileDirectory {
 		allFiles = new HashMap<String, RMFile>();
 	}
 	
-	public void addFile(RMFile file) {
+	public synchronized void addFile(RMFile file) {
 		if (!allFiles.containsKey(file))
 			allFiles.put(file.getId(), file);
 	}
 	
-	public void removeFile(RMFile file) {
+	public synchronized void removeFile(RMFile file) {
 		allFiles.remove(file);
 		for(ArrayList<RMFile> peerFileList : peerFiles.values()) {
 			peerFileList.remove(file); //Remove from all peer lists
 		}
 	}
 	
-	public RMFile getFileById(String id) {
+	public synchronized RMFile getFileById(String id) {
 		return allFiles.get(id);
+	}
+	
+	public synchronized Collection<RMFile> getAllFiles() {
+		return allFiles.values();
 	}
 	
 	/* Functions for peers' files */
 	
-	public void addPeer(Address peer) {
+	public synchronized void addPeer(Address peer) {
 		if (!peerFiles.containsKey(peer))
 			peerFiles.put(peer, new ArrayList<RMFile>());
 	}
 	
-	public void removePeer(Address peer) {
+	public synchronized void removePeer(Address peer) {
 		peerFiles.remove(peer);
 	}
 	
-	public void addPeerFile(Address peer, String fileId) {
+	public synchronized void addPeerFile(Address peer, String fileId) {
 		RMFile file = getFileById(fileId);
 		if (file == null) return;
 		
@@ -60,7 +65,7 @@ public class FileDirectory {
 		}
 	}
 	
-	public void removePeerFile(Address peer, String fileId) {
+	public synchronized void removePeerFile(Address peer, String fileId) {
 		RMFile file = getFileById(fileId);
 		if (file == null) return;
 		if (peerFiles.containsKey(peer)) {
@@ -69,7 +74,7 @@ public class FileDirectory {
 		}
 	}
 	
-	public List<Address> peersWithFile(String fileId) {
+	public synchronized List<Address> peersWithFile(String fileId) {
 		List<Address> peers = new ArrayList<Address>();
 		
 		RMFile file = getFileById(fileId);

@@ -1,4 +1,4 @@
-package net.voidfunction.rm.server;
+package net.voidfunction.rm.master;
 
 import java.io.IOException;
 import java.io.OutputStream;
