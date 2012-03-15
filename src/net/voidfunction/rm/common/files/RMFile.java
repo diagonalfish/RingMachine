@@ -83,7 +83,7 @@ public class RMFile implements Serializable {
 	}
 
 	public boolean equals(Object o) {
-		RMFile otherfile = (RMFile) o;
+		RMFile otherfile = (RMFile)o;
 		return otherfile.id.equals(this.id);
 	}
 

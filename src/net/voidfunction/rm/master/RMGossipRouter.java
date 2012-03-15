@@ -396,11 +396,11 @@ public class RMGossipRouter {
 			try {
 				sock = srvSock.accept();
 				if (linger_timeout > 0) {
-					int linger = Math.max(1, (int) (linger_timeout / 1000));
+					int linger = Math.max(1, (int)(linger_timeout / 1000));
 					sock.setSoLinger(true, linger);
 				}
 				if (sock_read_timeout > 0)
-					sock.setSoTimeout((int) sock_read_timeout);
+					sock.setSoTimeout((int)sock_read_timeout);
 
 				if (log.isDebugEnabled())
 					log.debug("Accepted connection, socket is " + sock);

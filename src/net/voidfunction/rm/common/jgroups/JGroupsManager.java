@@ -217,7 +217,7 @@ public class JGroupsManager {
 			// Message received, try to cast it to an RMPacket and send an event
 			try {
 				Object obj = message.getObject();
-				RMPacket packet = (RMPacket) obj;
+				RMPacket packet = (RMPacket)obj;
 				for (JGroupsListener listener : listeners) {
 					listener.onMessage(message.getSrc(), packet);
 				}
