@@ -6,14 +6,14 @@ package net.voidfunction.rm.common;
 public abstract class Node {
 
 	protected RMConfig config;
-	
+
 	public Node(String configFile) {
 		config = new RMConfig();
 		config.safeLoad(configFile);
 	}
-	
+
 	public RMConfig getConfig() {
 		return config;
 	}
-	
+
 }

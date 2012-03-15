@@ -13,9 +13,10 @@ import java.security.NoSuchAlgorithmException;
  * Handy functions for files
  */
 public class FileUtils {
-	
+
 	/**
 	 * Calculate the SHA-256 hash for a given file efficiently.
+	 * 
 	 * @param file
 	 * @return Byte array containing the hash
 	 * @throws IOException
@@ -25,20 +26,22 @@ public class FileUtils {
 		try {
 			sha256 = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
-			//This should not happen, ever
+			// This should not happen, ever
 			return new byte[0];
 		}
 		FileInputStream in = new FileInputStream(file);
 		DigestInputStream din = new DigestInputStream(in, sha256);
 		din.on(true);
 		byte[] buffer = new byte[8192];
-		while (din.read(buffer) != -1);
-		
+		while (din.read(buffer) != -1)
+			;
+
 		return sha256.digest();
 	}
-	
+
 	/**
 	 * Get a MIME type for a given filename.
+	 * 
 	 * @param filename
 	 * @return MIME type (string)
 	 */
@@ -47,5 +50,5 @@ public class FileUtils {
 		FileNameMap fileNameMap = URLConnection.getFileNameMap();
 		return fileNameMap.getContentTypeFor(filename);
 	}
-	
+
 }

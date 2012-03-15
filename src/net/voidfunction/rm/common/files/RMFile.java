@@ -5,18 +5,18 @@ import java.io.Serializable;
 import org.jgroups.util.UUID;
 
 /**
- * Generic representation of a file - contains everything needed to identify
- * it except the data itself.
+ * Generic representation of a file - contains everything needed to identify it
+ * except the data itself.
  */
 public class RMFile implements Serializable {
 
 	private static final long serialVersionUID = 3764807165415486377L;
-	
+
 	/* File data */
 	private String name, id, mimetype;
 	private int size;
 	private byte[] sha256hash;
-	
+
 	public RMFile(String name, String id, String mimetype, int size, byte[] hash) {
 		this.name = name;
 		this.id = id;
@@ -24,9 +24,11 @@ public class RMFile implements Serializable {
 		this.size = size;
 		this.sha256hash = hash;
 	}
-	
+
 	/**
-	 * Constructor that generates its own UUID for id (appropriate for new file objects)
+	 * Constructor that generates its own UUID for id (appropriate for new file
+	 * objects)
+	 * 
 	 * @param name
 	 * @param mimetype
 	 * @param size
@@ -39,8 +41,7 @@ public class RMFile implements Serializable {
 		this.size = size;
 		this.sha256hash = hash;
 	}
-	
-	
+
 	public String getName() {
 		return name;
 	}
@@ -80,14 +81,14 @@ public class RMFile implements Serializable {
 	public void setHash(byte[] hash) {
 		this.sha256hash = hash;
 	}
-	
+
 	public boolean equals(Object o) {
-		RMFile otherfile = (RMFile)o;
+		RMFile otherfile = (RMFile) o;
 		return otherfile.id.equals(this.id);
 	}
-	
+
 	public RMFile cloneToID(String newID) {
 		return new RMFile(name, newID, mimetype, size, sha256hash);
 	}
-	
+
 }

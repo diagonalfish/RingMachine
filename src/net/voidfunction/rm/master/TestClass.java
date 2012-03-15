@@ -22,28 +22,30 @@ public class TestClass extends JGroupsListener {
 
 	public static void main(String[] args) {
 		System.setProperty("java.net.preferIPv4Stack", "true");
-		
+
 		/*
-		IPAddressServer ipserver = new IPAddressServer(1661);
-		try {
-			ipserver.start();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.println(new IPAddressClient("http://localhost:1661/").getMyIP());
-		System.out.println(new IPAddressClient("http://whatismyip.org/").getMyIP());
-		System.out.println(new IPAddressClient("http://ifconfig.me/ip").getMyIP());
-		System.out.println(new IPAddressClient("http://myip.dnsomatic.com/").getMyIP());
-		System.out.println(new IPAddressClient("http://myip.xname.org/").getMyIP());
-		*/
+		 * IPAddressServer ipserver = new IPAddressServer(1661); try {
+		 * ipserver.start(); } catch (IOException e) { e.printStackTrace(); }
+		 * 
+		 * System.out.println(new
+		 * IPAddressClient("http://localhost:1661/").getMyIP());
+		 * System.out.println(new
+		 * IPAddressClient("http://whatismyip.org/").getMyIP());
+		 * System.out.println(new
+		 * IPAddressClient("http://ifconfig.me/ip").getMyIP());
+		 * System.out.println(new
+		 * IPAddressClient("http://myip.dnsomatic.com/").getMyIP());
+		 * System.out.println(new
+		 * IPAddressClient("http://myip.xname.org/").getMyIP());
+		 */
 		PropertyConfigurator.configure("log4j.properties");
-		
+
 		InetAddress myIP = null;
-		
+
 		try {
 			myIP = InetAddress.getByName("192.168.0.103");
-			//myIP = InetAddress.getByName(new IPAddressClient("http://whatismyip.org/").getMyIP());
+			// myIP = InetAddress.getByName(new
+			// IPAddressClient("http://whatismyip.org/").getMyIP());
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -56,18 +58,18 @@ public class TestClass extends JGroupsListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		netmgr.addListener(new TestClass());
-		
-		//netmgr.connect();
+
+		// netmgr.connect();
 		RMLog.info("Hello world!");
 		RMLog.raw("zomg");
 	}
-	
+
 	public void onConnect() {
 		System.out.println("Connected!");
 	}
-	
+
 	public void onDisconnect() {
 		System.out.println("Disconnected!");
 	}
@@ -75,36 +77,36 @@ public class TestClass extends JGroupsListener {
 	public void onMessage(Address source, RMPacket message) {
 		System.out.println("Got message!");
 	}
-	
+
 	public void onError(String message) {
 		System.out.println("Error! " + message);
 	}
-	
-    public void stateRequested(OutputStream output) throws Exception {
-    	System.out.println("Someone asked for our state.");
-    }
 
-    public void stateReceived(InputStream input) throws Exception {
-    	System.out.println("Got the state from someone.");
-    }
-    
-    public void initialPeers(List<Address> peers) {
-    	System.out.println("Got initial peer list:");
-    	for(Address addr : peers) {
-    		System.out.println("  " + addr.toString());
-    	}
-    }
+	public void stateRequested(OutputStream output) throws Exception {
+		System.out.println("Someone asked for our state.");
+	}
 
-    public void onPeerJoin(Address newPeer) {
-    	System.out.println("Peer joined: " + newPeer.toString());
-    }
-    
-    public void onPeerLeave(Address lostPeer) {
-    	System.out.println("Peer left: " + lostPeer.toString());
-    }
+	public void stateReceived(InputStream input) throws Exception {
+		System.out.println("Got the state from someone.");
+	}
 
-    public void onPeerPossibleLeave(Address possibleLostPeer) {
-    	System.out.println("Suspect a peer has left: " + possibleLostPeer.toString());
-    }
-	
+	public void initialPeers(List<Address> peers) {
+		System.out.println("Got initial peer list:");
+		for (Address addr : peers) {
+			System.out.println("  " + addr.toString());
+		}
+	}
+
+	public void onPeerJoin(Address newPeer) {
+		System.out.println("Peer joined: " + newPeer.toString());
+	}
+
+	public void onPeerLeave(Address lostPeer) {
+		System.out.println("Peer left: " + lostPeer.toString());
+	}
+
+	public void onPeerPossibleLeave(Address possibleLostPeer) {
+		System.out.println("Suspect a peer has left: " + possibleLostPeer.toString());
+	}
+
 }

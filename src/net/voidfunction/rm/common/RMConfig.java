@@ -8,7 +8,7 @@ import java.util.Properties;
 public class RMConfig extends Properties {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public void safeLoad(String filename) {
 		try {
 			this.load(new FileInputStream(filename));
@@ -21,29 +21,33 @@ public class RMConfig extends Properties {
 
 	public String getString(String prop, String def) {
 		String pval = getProperty(prop);
-		if (pval == null) return def;
+		if (pval == null)
+			return def;
 		return pval;
 	}
-	
+
 	public boolean getBool(String prop, boolean def) {
 		String pval = getProperty(prop);
-		if (pval == null) return def;
+		if (pval == null)
+			return def;
 		return Boolean.valueOf(getProperty(prop));
 	}
-	
+
 	public int getInt(String prop, int def) {
 		String pval = getProperty(prop);
-		if (pval == null) return def;
+		if (pval == null)
+			return def;
 		try {
 			return Integer.valueOf(pval);
 		} catch (NumberFormatException e) {
 			return def;
 		}
 	}
-	
+
 	public double getDouble(String prop, double def) {
 		String pval = getProperty(prop);
-		if (pval == null) return def;
+		if (pval == null)
+			return def;
 		try {
 			return Double.valueOf(pval);
 		} catch (NumberFormatException e) {

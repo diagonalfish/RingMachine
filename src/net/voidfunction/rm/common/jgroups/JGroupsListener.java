@@ -14,22 +14,31 @@ import org.jgroups.Address;
  */
 public abstract class JGroupsListener {
 
-	public void onConnect() {}
+	public void onConnect() {
+	}
 
-	public void onMessage(Address source, RMPacket message) {}
-	
-	public void onError(String message) {}
-	
-    public void stateRequested(OutputStream output) throws Exception {}
+	public void onMessage(Address source, RMPacket message) {
+	}
 
-    public void stateReceived(InputStream input) throws Exception {}
-    
-    public void initialPeers(List<Address> peers) {}
+	public void onError(String message) {
+	}
 
-    public void onPeerJoin(Address newPeer) {}
-    
-    public void onPeerLeave(Address lostPeer) {}
+	public void stateRequested(OutputStream output) throws Exception {
+	}
 
-    public void onPeerPossibleLeave(Address possibleLostPeer) {}
+	public void stateReceived(InputStream input) throws Exception {
+	}
+
+	public void initialPeers(List<Address> peers) {
+	}
+
+	public void onPeerJoin(Address newPeer) {
+	}
+
+	public void onPeerLeave(Address lostPeer) {
+	}
+
+	public void onPeerPossibleLeave(Address possibleLostPeer) {
+	}
 
 }
