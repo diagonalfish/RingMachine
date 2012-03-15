@@ -11,7 +11,7 @@ import java.util.List;
 import org.apache.log4j.PropertyConfigurator;
 import org.jgroups.Address;
 
-import net.voidfunction.rm.common.Log;
+import net.voidfunction.rm.common.RMLog;
 import net.voidfunction.rm.common.cluster.RMPacket;
 import net.voidfunction.rm.common.files.FileUtils;
 import net.voidfunction.rm.common.http.IPAddressClient;
@@ -60,8 +60,8 @@ public class TestClass extends JGroupsListener {
 		netmgr.addListener(new TestClass());
 		
 		//netmgr.connect();
-		Log.info("Hello world!");
-		Log.raw("zomg");
+		RMLog.info("Hello world!");
+		RMLog.raw("zomg");
 	}
 	
 	public void onConnect() {

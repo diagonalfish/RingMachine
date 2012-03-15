@@ -29,17 +29,11 @@ public class IPAddressClient {
 		this.url = url;
 	}
 	
-	public String getMyIP() {
-		try {
-			InputStream ips = url.openStream();
-			Scanner s = new Scanner(ips).useDelimiter("\\A");
-			if (s.hasNext()) return s.next().trim();
-			return null;
-		} catch (IOException e) {
-			//TODO logging
-			e.printStackTrace();
-			return null;
-		}
+	public String getMyIP() throws IOException {
+		InputStream ips = url.openStream();
+		Scanner s = new Scanner(ips).useDelimiter("\\A");
+		if (s.hasNext()) return s.next().trim();
+		return null;
 	}
 	
 }

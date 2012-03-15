@@ -23,11 +23,11 @@ import org.jgroups.util.Util;
 public class JGroupsManager {
 
 	private JChannel 			jch;
-	private int 				publicPort; //Primary port our JGroups system listens on for other peer communication
-	private InetAddress 		publicIP; //Our public (external) ip
-	private String 				clusterName; //Name of cluster (doesn't matter as long as same for all peers
-	private InetSocketAddress 	gossipRouter; //Address of GossipRouter we try to get peers from
-	private View 				curView; //List of other peers we should know about
+	private int 				publicPort; // Primary port our JGroups system listens on for other peer communication
+	private InetAddress 		publicIP; // Our public (external) ip
+	private String 				clusterName; // Name of cluster (doesn't matter as long as same for all peers
+	private InetSocketAddress 	gossipRouter; // Address of GossipRouter we try to get peers from
+	private View 				curView; // List of other peers we should know about
 	
 	private ArrayList<JGroupsListener> listeners; //Registered listeners
 	
@@ -146,8 +146,8 @@ public class JGroupsManager {
 				.setValue("sock_conn_timeout", 60).setValue("external_addr", publicIP))
 			.addProtocol(new TCPGOSSIP().setValue("initial_hosts", initial_hosts))
 			.addProtocol(new MERGE2())
-			//.addProtocol(new FD()) /* Not needed with FD_SOCK working, too spammy anyway */
-			.addProtocol(new FD_SOCK().setValue("external_addr", publicIP))
+			.addProtocol(new FD().setValue("timeout", 15000).setValue("max_tries", 2)) //TODO: possible tweaking?
+			//.addProtocol(new FD_SOCK().setValue("external_addr", publicIP))
 			.addProtocol(new VERIFY_SUSPECT())
 			.addProtocol(new ENCRYPT().setValue("encrypt_entire_message", false).setValue("symInit", 128)
 					.setValue("symAlgorithm", "AES/ECB/PKCS5Padding").setValue("asymInit", 512)

@@ -3,7 +3,7 @@ package net.voidfunction.rm.common;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Log {
+public class RMLog {
 
 	public static void raw(String message) {
 		log(null, message);
