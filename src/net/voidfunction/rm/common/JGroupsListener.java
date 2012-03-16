@@ -19,9 +19,6 @@ public abstract class JGroupsListener {
 	public void onMessage(Address source, RMPacket message) {
 	}
 
-	public void onError(String message) {
-	}
-
 	public void stateRequested(OutputStream output) throws Exception {
 	}
 

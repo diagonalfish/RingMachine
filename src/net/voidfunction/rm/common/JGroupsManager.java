@@ -24,20 +24,16 @@ public class JGroupsManager {
 	private JChannel jch;
 	private int publicPort; // Primary port our JGroups system listens on for
 							// other peer communication
-	private InetAddress publicIP; // Our public (external) ip
-	private String clusterName; // Name of cluster (doesn't matter as long as
-								// same for all peers
+	private String publicIP; // Our public (external) ip
 	private InetSocketAddress gossipRouter; // Address of GossipRouter we try to
 											// get peers from
 	private View curView; // List of other peers we should know about
 
 	private ArrayList<JGroupsListener> listeners; // Registered listeners
 
-	public JGroupsManager(int publicPort, InetAddress publicIP, String clusterName, String gossipHost,
-			int gossipPort) throws Exception {
+	public JGroupsManager(int publicPort, String publicIP, String gossipHost, int gossipPort) {
 		this.publicPort = publicPort;
 		this.publicIP = publicIP;
-		this.clusterName = clusterName;
 		gossipRouter = new InetSocketAddress(gossipHost, gossipPort);
 
 		listeners = new ArrayList<JGroupsListener>();
@@ -87,17 +83,11 @@ public class JGroupsManager {
 
 	/**
 	 * Initialize the channel and connect to the cluster.
+	 * @throws Exception 
 	 */
-	public void connect() {
-		try {
-			reset();
-			jch.connect(clusterName);
-		} catch (Exception e) {
-			for (JGroupsListener listener : listeners) {
-				listener.onError("Could not connect: " + e.getClass().getName() + " - " + e.getMessage());
-				reset();
-			}
-		}
+	public void connect() throws Exception {
+		reset();
+		jch.connect("RM");
 	}
 
 	/**
@@ -112,8 +102,9 @@ public class JGroupsManager {
 	 * Send a packet to all members of the cluster.
 	 * 
 	 * @param packet
+	 * @throws Exception 
 	 */
-	public void sendMessage(RMPacket packet) {
+	public void sendMessage(RMPacket packet) throws Exception {
 		Message message = new Message();
 		message.setObject(packet);
 		send(message);
@@ -124,8 +115,9 @@ public class JGroupsManager {
 	 * 
 	 * @param packet
 	 * @param dest
+	 * @throws Exception 
 	 */
-	public void sendMessage(RMPacket packet, Address dest) {
+	public void sendMessage(RMPacket packet, Address dest) throws Exception {
 		Message message = new Message(dest);
 		message.setObject(packet);
 		send(message);
@@ -133,7 +125,7 @@ public class JGroupsManager {
 
 	/* Private methods */
 
-	private void reset() {
+	private void reset() throws Exception {
 		jch = new JChannel(false);
 		jch.setDiscardOwnMessages(true);
 
@@ -144,6 +136,9 @@ public class JGroupsManager {
 		jch.setReceiver(clistener);
 		jch.addChannelListener(clistener);
 
+		// Convert public IP String to InetAddress
+		InetAddress publicIPAddr = InetAddress.getByName(publicIP);
+		
 		// Initialize protocol stack
 		ProtocolStack stack = new ProtocolStack();
 		jch.setProtocolStack(stack);
@@ -153,7 +148,7 @@ public class JGroupsManager {
 		// Add protocols
 		stack.addProtocol(
 				new TCP().setValue("bind_port", publicPort).setValue("use_send_queues", true)
-						.setValue("sock_conn_timeout", 60).setValue("external_addr", publicIP))
+						.setValue("sock_conn_timeout", 60).setValue("external_addr", publicIPAddr))
 				.addProtocol(new TCPGOSSIP().setValue("initial_hosts", initial_hosts))
 				.addProtocol(new MERGE2())
 				.addProtocol(new FD().setValue("timeout", 15000).setValue("max_tries", 2))
@@ -169,30 +164,15 @@ public class JGroupsManager {
 				.addProtocol(new STABLE()).addProtocol(new GMS().setValue("print_local_addr", false))
 				.addProtocol(new UFC()).addProtocol(new MFC()).addProtocol(new FRAG2())
 				.addProtocol(new STATE_TRANSFER()).addProtocol(new COMPRESS());
-		try {
-			stack.init();
-		} catch (Exception e) {
-			for (JGroupsListener listener : listeners) {
-				listener.onError("Error creating JChannel! " + e.getClass().getName() + " - "
-						+ e.getMessage());
-			}
-		}
+		
+		stack.init();
 	}
 
-	private void send(Message message) {
+	private void send(Message message) throws Exception {
 		if (jch.isConnected()) {
-			try {
 				jch.send(message);
-			} catch (Exception e) {
-				for (JGroupsListener listener : listeners) {
-					listener.onError("Error sending packet! " + e.getClass().getName() + " - "
-							+ e.getMessage());
-				}
-			}
 		} else {
-			for (JGroupsListener listener : listeners) {
-				listener.onError("Attempted to send message while disconnected!");
-			}
+			throw new Exception("Tried to send message while disconnected!");
 		}
 	}
 
@@ -221,10 +201,8 @@ public class JGroupsManager {
 					listener.onMessage(message.getSrc(), packet);
 				}
 			} catch (Exception e) {
-				for (JGroupsListener listener : listeners) {
-					listener.onError("Error receiving packet " + e.getClass().getName() + " - "
-							+ e.getMessage());
-				}
+				// Warn on the console
+				RMLog.warn("Received invalid packet message from peer with address " + message.getSrc().toString());
 			}
 		}
 

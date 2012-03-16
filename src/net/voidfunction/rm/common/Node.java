@@ -1,12 +1,14 @@
 package net.voidfunction.rm.common;
 
 /**
- * Represents a generic network node with a configuration.
+ * Represents a generic network node with a configuration and public IP; provides
+ * getter for class instance (singleton)
  */
 public abstract class Node {
 
 	protected RMConfig config;
 	protected String publicIP;
+	protected JGroupsManager jgm;
 	
 	protected static Node node;
 
@@ -24,6 +26,11 @@ public abstract class Node {
 		return publicIP;
 	}
 	
+	public JGroupsManager getJGroupsMgr() {
+		return jgm;
+	}
+	
+	// Static singleton getter
 	public static Node getInstance() {
 		return node;
 	}

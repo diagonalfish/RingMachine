@@ -3,6 +3,7 @@ package net.voidfunction.rm.master;
 import java.io.IOException;
 
 import net.voidfunction.rm.common.IPAddressClient;
+import net.voidfunction.rm.common.JGroupsManager;
 import net.voidfunction.rm.common.Node;
 import net.voidfunction.rm.common.RMLog;
 
@@ -25,11 +26,14 @@ public class MasterNode extends Node {
 	public void start() {
 		RMLog.raw("RingMachine Master Node v0.1 starting up...");
 
-		int baseP2PPort = config.getInt("port.p2p", 1600);
+		// Create utility objects
+		// TODO
+		
+		int baseP2Pport = config.getInt("port.p2p", 1600);
 
 		// Start gossip router
-		RMLog.info("Starting gossip router on port " + (baseP2PPort + 1) + "...");
-		grouter = new RMGossipRouter(baseP2PPort + 1);
+		RMLog.info("Starting gossip router on port " + (baseP2Pport + 1) + "...");
+		grouter = new RMGossipRouter(baseP2Pport + 1);
 		grouter.setExpiryTime(60000);
 		try {
 			grouter.start();
@@ -42,8 +46,8 @@ public class MasterNode extends Node {
 		RMLog.info("Gossip router started.");
 
 		// Start IP address server
-		RMLog.info("Starting IP address server on port " + (baseP2PPort + 2) + "...");
-		ipserver = new IPAddressServer(baseP2PPort + 2);
+		RMLog.info("Starting IP address server on port " + (baseP2Pport + 2) + "...");
+		ipserver = new IPAddressServer(baseP2Pport + 2);
 		try {
 			ipserver.start();
 		} catch (IOException e) {
@@ -68,5 +72,18 @@ public class MasterNode extends Node {
 			}
 		}
 		RMLog.info("Public IP address is " + publicIP);
+		
+		// Create JGroupsManager object, configured to connect to our own gossip router
+		jgm = new JGroupsManager(baseP2Pport, publicIP, "localhost", baseP2Pport + 1);
+		
+		// Set up net manager
+		
+		// Start JGroups
+		try {
+			jgm.connect();
+		} catch (Exception e) {
+			RMLog.fatal("Failed to start JGroups! " + e.getClass().getName() + " - " + e.getMessage());
+			System.exit(1);
+		}
 	}
 }
