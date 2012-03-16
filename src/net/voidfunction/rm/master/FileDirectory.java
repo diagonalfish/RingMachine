@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import net.voidfunction.rm.common.files.RMFile;
+import net.voidfunction.rm.common.RMFile;
 
 import org.jgroups.Address;
 

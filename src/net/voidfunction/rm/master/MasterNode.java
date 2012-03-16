@@ -2,9 +2,9 @@ package net.voidfunction.rm.master;
 
 import java.io.IOException;
 
+import net.voidfunction.rm.common.IPAddressClient;
 import net.voidfunction.rm.common.Node;
 import net.voidfunction.rm.common.RMLog;
-import net.voidfunction.rm.common.http.IPAddressClient;
 
 /**
  * Main class for RingMachine master node.
@@ -15,8 +15,7 @@ public class MasterNode extends Node {
 	private IPAddressServer ipserver;
 
 	public static void main(String[] args) {
-		MasterNode master = new MasterNode();
-		master.start();
+		new MasterNode().start();
 	}
 
 	public MasterNode() {
@@ -56,18 +55,18 @@ public class MasterNode extends Node {
 		RMLog.info("IP address server started.");
 
 		// Get our external IP address
-		String externalIP = config.getString("ip.bind", null);
-		if (externalIP == null) {
+		publicIP = config.getString("ip.bind", null);
+		if (publicIP == null) {
 			RMLog.info("Getting public IP address from remote service...");
 			String extURL = config.getString("ip.service", "");
 			try {
-				externalIP = new IPAddressClient(extURL).getMyIP();
+				publicIP = new IPAddressClient(extURL).getMyIP();
 			} catch (IOException e) {
 				RMLog.fatal("Failed to retrieve public IP address! " + e.getClass().getName() + ": "
 						+ e.getMessage());
 				System.exit(1);
 			}
 		}
-		RMLog.info("Public IP address is " + externalIP);
+		RMLog.info("Public IP address is " + publicIP);
 	}
 }

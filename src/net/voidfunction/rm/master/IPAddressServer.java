@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
-import net.voidfunction.rm.common.http.HTTPUtils;
+import net.voidfunction.rm.common.HTTPUtils;
 
 import com.sun.net.httpserver.*;
 

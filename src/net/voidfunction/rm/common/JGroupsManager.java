@@ -1,4 +1,4 @@
-package net.voidfunction.rm.common.jgroups;
+package net.voidfunction.rm.common;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,7 +7,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.voidfunction.rm.common.cluster.RMPacket;
 
 import org.jgroups.*;
 import org.jgroups.protocols.*;

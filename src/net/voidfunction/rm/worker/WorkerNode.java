@@ -9,8 +9,7 @@ import net.voidfunction.rm.common.RMLog;
 public class WorkerNode extends Node {
 
 	public static void main(String[] args) {
-		WorkerNode worker = new WorkerNode();
-		worker.start();
+		new WorkerNode().start();
 	}
 
 	public WorkerNode() {

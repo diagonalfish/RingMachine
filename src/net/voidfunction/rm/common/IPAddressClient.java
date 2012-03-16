@@ -1,4 +1,4 @@
-package net.voidfunction.rm.common.http;
+package net.voidfunction.rm.common;
 
 import java.io.IOException;
 import java.io.InputStream;

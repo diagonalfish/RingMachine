@@ -1,4 +1,4 @@
-package net.voidfunction.rm.common.cluster;
+package net.voidfunction.rm.common;
 
 import java.io.Serializable;
 import java.util.HashMap;

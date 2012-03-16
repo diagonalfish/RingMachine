@@ -1,4 +1,4 @@
-package net.voidfunction.rm.common.files;
+package net.voidfunction.rm.common;
 
 import java.io.File;
 import java.io.FileInputStream;
