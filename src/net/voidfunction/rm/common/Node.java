@@ -29,10 +29,5 @@ public abstract class Node {
 	public JGroupsManager getJGroupsMgr() {
 		return jgm;
 	}
-	
-	// Static singleton getter
-	public static Node getInstance() {
-		return node;
-	}
 
 }

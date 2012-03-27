@@ -1,14 +1,17 @@
 package net.voidfunction.rm.common;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import org.jgroups.*;
+import org.jgroups.Address;
+import org.jgroups.Channel;
+import org.jgroups.ChannelListener;
+import org.jgroups.JChannel;
+import org.jgroups.Message;
+import org.jgroups.ReceiverAdapter;
+import org.jgroups.View;
 import org.jgroups.protocols.*;
 import org.jgroups.protocols.pbcast.*;
 import org.jgroups.stack.ProtocolStack;
@@ -163,7 +166,7 @@ public class JGroupsManager {
 				.addProtocol(new NAKACK2().setValue("use_mcast_xmit", false)).addProtocol(new UNICAST2())
 				.addProtocol(new STABLE()).addProtocol(new GMS().setValue("print_local_addr", false))
 				.addProtocol(new UFC()).addProtocol(new MFC()).addProtocol(new FRAG2())
-				.addProtocol(new STATE_TRANSFER()).addProtocol(new COMPRESS());
+				.addProtocol(new COMPRESS());
 		
 		stack.init();
 	}
@@ -203,18 +206,6 @@ public class JGroupsManager {
 			} catch (Exception e) {
 				// Warn on the console
 				RMLog.warn("Received invalid packet message from peer with address " + message.getSrc().toString());
-			}
-		}
-
-		public void getState(OutputStream output) throws Exception {
-			for (JGroupsListener listener : listeners) {
-				listener.stateRequested(output);
-			}
-		}
-
-		public void setState(InputStream input) throws Exception {
-			for (JGroupsListener listener : listeners) {
-				listener.stateReceived(input);
 			}
 		}
 

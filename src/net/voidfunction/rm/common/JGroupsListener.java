@@ -19,12 +19,6 @@ public abstract class JGroupsListener {
 	public void onMessage(Address source, RMPacket message) {
 	}
 
-	public void stateRequested(OutputStream output) throws Exception {
-	}
-
-	public void stateReceived(InputStream input) throws Exception {
-	}
-
 	public void initialPeers(List<Address> peers) {
 	}
 

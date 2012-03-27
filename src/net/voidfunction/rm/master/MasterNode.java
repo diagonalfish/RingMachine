@@ -2,6 +2,7 @@ package net.voidfunction.rm.master;
 
 import java.io.IOException;
 
+import net.voidfunction.rm.common.FileRepository;
 import net.voidfunction.rm.common.IPAddressClient;
 import net.voidfunction.rm.common.JGroupsManager;
 import net.voidfunction.rm.common.Node;
@@ -14,6 +15,10 @@ public class MasterNode extends Node {
 
 	private RMGossipRouter grouter;
 	private IPAddressServer ipserver;
+	
+	// Worker directory and File repository
+	private WorkerDirectory workerDir;
+	private FileRepository fileRep;
 
 	public static void main(String[] args) {
 		new MasterNode().start();
@@ -73,6 +78,10 @@ public class MasterNode extends Node {
 		}
 		RMLog.info("Public IP address is " + publicIP);
 		
+		// Set up file repository and worker directory
+		fileRep = new FileRepository("./files");
+		workerDir = new WorkerDirectory(fileRep);
+		
 		// Create JGroupsManager object, configured to connect to our own gossip router
 		jgm = new JGroupsManager(baseP2Pport, publicIP, "localhost", baseP2Pport + 1);
 		
@@ -86,4 +95,14 @@ public class MasterNode extends Node {
 			System.exit(1);
 		}
 	}
+
+	public WorkerDirectory getWorkerDirectory() {
+		return workerDir;
+	}
+
+	public FileRepository getFileRepository() {
+		return fileRep;
+	}
+	
+	
 }
