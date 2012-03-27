@@ -16,6 +16,8 @@ public class MasterNode extends Node {
 	private RMGossipRouter grouter;
 	private IPAddressServer ipserver;
 	
+	private MasterNetManager netManager;
+	
 	// Worker directory and File repository
 	private WorkerDirectory workerDir;
 	private FileRepository fileRep;
@@ -85,7 +87,8 @@ public class MasterNode extends Node {
 		// Create JGroupsManager object, configured to connect to our own gossip router
 		jgm = new JGroupsManager(baseP2Pport, publicIP, "localhost", baseP2Pport + 1);
 		
-		// Set up net manager
+		// Set up net listener
+		netManager = new MasterNetManager(this);
 		
 		// Start JGroups
 		try {
@@ -94,6 +97,10 @@ public class MasterNode extends Node {
 			RMLog.fatal("Failed to start JGroups! " + e.getClass().getName() + " - " + e.getMessage());
 			System.exit(1);
 		}
+	}
+	
+	public MasterNetManager getNetManager() {
+		return netManager;
 	}
 
 	public WorkerDirectory getWorkerDirectory() {
