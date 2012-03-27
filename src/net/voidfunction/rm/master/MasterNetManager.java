@@ -11,6 +11,8 @@ public class MasterNetManager extends JGroupsListener {
 	public MasterNetManager() {
 		Node ourNode = Node.getInstance();
 		jgm = ourNode.getJGroupsMgr();
+		
+		
 	}
 	
 }
