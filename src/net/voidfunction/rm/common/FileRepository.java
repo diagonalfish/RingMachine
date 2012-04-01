@@ -38,7 +38,8 @@ public class FileRepository {
 	 */
 	@SuppressWarnings("unchecked")
 	public void loadFiles() throws IOException {
-		String fileDatName = getFileName("files.dat");
+		checkDirectory();
+		String fileDatName = getDataFileName();
 		try {
 			ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(fileDatName)));
 			Object inObj = in.readObject();
@@ -47,13 +48,13 @@ public class FileRepository {
 		} catch (FileNotFoundException fnfe) {
 			// It's ok if it does not exist.
 			fileObjects = new HashMap<String, RMFile>();
-			RMLog.info("File repository list (" + fileDatName + ") not found. Creating a new one.");
+			RMLog.info("File repository list (" + fileDatName + ") not found. Starting with empty list.");
 		} catch (ClassNotFoundException e) {
 			// Very unlikely, so we default to empty list
 			RMLog.warn("Encountered error loading file  list (" + fileDatName + "). Starting with empty list.");
 			fileObjects = new HashMap<String, RMFile>();
 		}
-		RMLog.info("File repository containing " + fileObjects.size() + " loaded.");
+		RMLog.info("File repository (" + fileObjects.size() + " files) loaded.");
 	}
 	
 	/**
@@ -195,8 +196,13 @@ public class FileRepository {
 			throw new IOException("Could not delete file with id '" + id + "'");
 	}
 
+	public String getDataFileName() {
+		return getFileName("files.dat");
+	}
+	
 	// Util function for getting the local storage filename for a given file
 	private String getFileName(String id) {
-		return directory + File.pathSeparator + id;
+		return directory + "/" + id;
 	}
+	
 }

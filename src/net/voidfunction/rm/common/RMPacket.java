@@ -135,12 +135,12 @@ public class RMPacket implements Serializable {
 		}
 	}
 
-	public Double getString(String key) {
+	public String getString(String key) {
 		try {
 			Object d = data.get(key.toLowerCase());
 			if (d == null)
 				return null;
-			return (Double)d;
+			return (String)d;
 		} catch (ClassCastException e) {
 			return null;
 		}
@@ -166,6 +166,14 @@ public class RMPacket implements Serializable {
 			return (List<Object>)d;
 		} catch (ClassCastException e) {
 			return null;
+		}
+	}
+	
+	public void print() {
+		System.out.println("Packet Type: " + type.name());
+		System.out.println("Data:");
+		for (String key : data.keySet()) {
+			System.out.println("\t" + key + ": " + data.get(key).toString());
 		}
 	}
 

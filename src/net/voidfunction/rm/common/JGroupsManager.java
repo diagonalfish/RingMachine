@@ -151,32 +151,44 @@ public class JGroupsManager {
 		// Add protocols
 		stack.addProtocol(
 				new TCP().setValue("bind_port", publicPort).setValue("use_send_queues", true)
-						.setValue("sock_conn_timeout", 60).setValue("external_addr", publicIPAddr))
+						.setValue("sock_conn_timeout", 60).setValue("external_addr", publicIPAddr)
+						.setValue("bind_addr", InetAddress.getByName("0.0.0.0"))
+						.setValue("thread_pool_rejection_policy", "run")
+						.setValue("oob_thread_pool_rejection_policy", "run"))
 				.addProtocol(new TCPGOSSIP().setValue("initial_hosts", initial_hosts))
 				.addProtocol(new MERGE2())
 				.addProtocol(new FD().setValue("timeout", 15000).setValue("max_tries", 2))
-				// TODO: possible tweaking?
-				// .addProtocol(new FD_SOCK().setValue("external_addr",
-				// publicIP))
+				/* .addProtocol(new FD_SOCK().setValue("external_addr", publicIP)) */
 				.addProtocol(new VERIFY_SUSPECT())
-				.addProtocol(
+				/*.addProtocol(
 						new ENCRYPT().setValue("encrypt_entire_message", false).setValue("symInit", 128)
 								.setValue("symAlgorithm", "AES/ECB/PKCS5Padding").setValue("asymInit", 512)
-								.setValue("asymAlgorithm", "RSA"))
-				.addProtocol(new NAKACK2().setValue("use_mcast_xmit", false)).addProtocol(new UNICAST2())
-				.addProtocol(new STABLE()).addProtocol(new GMS().setValue("print_local_addr", false))
-				.addProtocol(new UFC()).addProtocol(new MFC()).addProtocol(new FRAG2())
+								.setValue("asymAlgorithm", "RSA")) */
+				.addProtocol(new NAKACK2().setValue("use_mcast_xmit", false).setValue("discard_delivered_msgs", true))
+				//.addProtocol(new UNICAST())
+				.addProtocol(new STABLE())
+				.addProtocol(new GMS().setValue("print_local_addr", true).setValue("view_bundling", true))
+				.addProtocol(new UFC())
+				.addProtocol(new MFC())
+				.addProtocol(new FRAG2())
 				.addProtocol(new COMPRESS());
 		
 		stack.init();
 	}
 
 	private void send(Message message) throws Exception {
+		/* TODO: is there a better way to tell whether we're connected? Maybe when we get MASTER_INFO? ... sigh 
 		if (jch.isConnected()) {
 				jch.send(message);
 		} else {
 			throw new Exception("Tried to send message while disconnected!");
 		}
+		*/
+		jch.send(message);
+	}
+	
+	public boolean isConnected() {
+		return jch.isConnected();
 	}
 
 	private class JGroupsCombinedListener extends ReceiverAdapter implements ChannelListener {

@@ -2,7 +2,6 @@ package net.voidfunction.rm.master;
 
 import java.io.IOException;
 
-import net.voidfunction.rm.common.FileRepository;
 import net.voidfunction.rm.common.IPAddressClient;
 import net.voidfunction.rm.common.JGroupsManager;
 import net.voidfunction.rm.common.Node;
@@ -20,7 +19,6 @@ public class MasterNode extends Node {
 	
 	// Worker directory and File repository
 	private WorkerDirectory workerDir;
-	private FileRepository fileRep;
 
 	public static void main(String[] args) {
 		new MasterNode().start();
@@ -33,14 +31,22 @@ public class MasterNode extends Node {
 	public void start() {
 		RMLog.raw("RingMachine Master Node v0.1 starting up...");
 
-		// Create utility objects
-		// TODO
+		// Load our file repository
+		try {
+			fileRep.loadFiles();
+		} catch (IOException e) {
+			RMLog.fatal("Could not load FileRepository data file! Check that " + fileRep.getDataFileName() + 
+				" is accessible and not corrupted!");
+			e.printStackTrace();
+			System.exit(1);
+		}
 		
+		// Begin starting our network services
 		int baseP2Pport = config.getInt("port.p2p", 1600);
 
 		// Start gossip router
-		RMLog.info("Starting gossip router on port " + (baseP2Pport + 1) + "...");
-		grouter = new RMGossipRouter(baseP2Pport + 1);
+		RMLog.info("Starting gossip router on port " + (baseP2Pport) + "...");
+		grouter = new RMGossipRouter(baseP2Pport);
 		grouter.setExpiryTime(60000);
 		try {
 			grouter.start();
@@ -66,7 +72,7 @@ public class MasterNode extends Node {
 		RMLog.info("IP address server started.");
 
 		// Get our external IP address
-		publicIP = config.getString("ip.bind", null);
+		publicIP = config.getString("ip.public", null);
 		if (publicIP == null) {
 			RMLog.info("Getting public IP address from remote service...");
 			String extURL = config.getString("ip.service", "");
@@ -80,17 +86,17 @@ public class MasterNode extends Node {
 		}
 		RMLog.info("Public IP address is " + publicIP);
 		
-		// Set up file repository and worker directory
-		fileRep = new FileRepository("./files");
+		// Create a WorkerDirectory
 		workerDir = new WorkerDirectory(fileRep);
 		
 		// Create JGroupsManager object, configured to connect to our own gossip router
-		jgm = new JGroupsManager(baseP2Pport, publicIP, "localhost", baseP2Pport + 1);
+		jgm = new JGroupsManager(baseP2Pport + 1, publicIP, "localhost", baseP2Pport);
 		
 		// Set up net listener
 		netManager = new MasterNetManager(this);
 		
 		// Start JGroups
+		
 		try {
 			jgm.connect();
 		} catch (Exception e) {
@@ -106,10 +112,5 @@ public class MasterNode extends Node {
 	public WorkerDirectory getWorkerDirectory() {
 		return workerDir;
 	}
-
-	public FileRepository getFileRepository() {
-		return fileRep;
-	}
-	
 	
 }
