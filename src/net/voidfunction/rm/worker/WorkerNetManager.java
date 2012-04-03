@@ -6,7 +6,6 @@ import org.jgroups.Address;
 
 import net.voidfunction.rm.common.JGroupsListener;
 import net.voidfunction.rm.common.JGroupsManager;
-import net.voidfunction.rm.common.RMLog;
 import net.voidfunction.rm.common.RMPacket;
 
 public class WorkerNetManager extends JGroupsListener {
@@ -26,16 +25,16 @@ public class WorkerNetManager extends JGroupsListener {
 	/* JGroups events */
 	
 	public void onConnect() {
-		RMLog.info("Connected to cluster.");
+		node.getLog().info("Connected to cluster.");
 	}
 	
 	public void initialPeers(List<Address> peers) {
-		RMLog.info("Received initial cluster peer list (" + peers.size() + " peers).");
+		node.getLog().info("Received initial cluster peer list (" + peers.size() + " peers).");
 		// No further action right now
 	}
 	
 	public void onPeerJoin(Address newPeer) {
-		RMLog.info("New cluster peer: " + newPeer);
+		node.getLog().info("New cluster peer: " + newPeer);
 		// No further action
 	}
 	
@@ -48,15 +47,14 @@ public class WorkerNetManager extends JGroupsListener {
 	}
 	
 	public void packetSendWorkerInfo(Address target) {
-		RMLog.info("Sending WORKER_INFO to master node.");
+		node.getLog().info("Sending WORKER_INFO to master node.");
 		RMPacket packetWorker = new RMPacket(RMPacket.Type.WORKER_INFO);
 		packetWorker.setDataVal("httphost", node.getPublicIP());
 		packetWorker.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
-		packetWorker.print();
 		try {
 			jgm.sendMessage(packetWorker, target);
 		} catch (Exception e) {
-			RMLog.severe("Could not send WORKER_INFO to " + target + ": " + e.getClass().getName() + " " + e.getMessage());
+			node.getLog().severe("Could not send WORKER_INFO to " + target + ": " + e.getClass().getName() + " " + e.getMessage());
 		}
 	}
 	

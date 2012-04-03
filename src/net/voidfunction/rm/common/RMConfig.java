@@ -8,14 +8,20 @@ import java.util.Properties;
 public class RMConfig extends Properties {
 
 	private static final long serialVersionUID = 1L;
+	
+	private Node node;
+	
+	public RMConfig(Node node) {
+		this.node = node;
+	}
 
 	public void safeLoad(String filename) {
 		try {
 			this.load(new FileInputStream(filename));
 		} catch (FileNotFoundException e) {
-			RMLog.severe("Cannot find configuration file " + filename + "!");
+			node.getLog().severe("Cannot find configuration file " + filename + "!");
 		} catch (IOException e) {
-			RMLog.severe("Error loading configuration file " + filename + ": " + e.getMessage());
+			node.getLog().severe("Error loading configuration file " + filename + ": " + e.getMessage());
 		}
 	}
 

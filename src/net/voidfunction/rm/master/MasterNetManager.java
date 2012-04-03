@@ -6,7 +6,6 @@ import org.jgroups.Address;
 
 import net.voidfunction.rm.common.JGroupsListener;
 import net.voidfunction.rm.common.JGroupsManager;
-import net.voidfunction.rm.common.RMLog;
 import net.voidfunction.rm.common.RMPacket;
 
 public class MasterNetManager extends JGroupsListener {
@@ -26,18 +25,18 @@ public class MasterNetManager extends JGroupsListener {
 	/* JGroups events */
 	
 	public void onConnect() {
-		RMLog.info("Connected to cluster.");
+		node.getLog().info("Connected to cluster.");
 	}
 	
 	public void initialPeers(List<Address> peers) {
-		RMLog.info("Received initial cluster peer list (" + peers.size() + " peers).");
+		node.getLog().info("Received initial cluster peer list (" + peers.size() + " peers).");
 		for(Address worker : peers) {
 			packetSendMasterInfo(worker);
 		}
 	}
 	
 	public void onPeerJoin(Address newPeer) {
-		RMLog.info("New cluster peer: " + newPeer);
+		node.getLog().info("New cluster peer: " + newPeer);
 		packetSendMasterInfo(newPeer);
 	}
 	
@@ -52,13 +51,13 @@ public class MasterNetManager extends JGroupsListener {
 	/* Packet sending functions */
 	
 	public void packetSendMasterInfo(Address target) {
-		RMLog.info("Sending MASTER_INFO to new worker " + target);
+		node.getLog().info("Sending MASTER_INFO to new worker " + target);
 		RMPacket packetMaster = new RMPacket(RMPacket.Type.MASTER_INFO);
 		packetMaster.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
 		try {
 			jgm.sendMessage(packetMaster, target);
 		} catch (Exception e) {
-			RMLog.severe("Could not send MASTER_INFO to " + target + ": " + e.getClass().getName() + " " + e.getMessage());
+			node.getLog().severe("Could not send MASTER_INFO to " + target + ": " + e.getClass().getName() + " " + e.getMessage());
 		}
 	}
 	

@@ -24,6 +24,8 @@ import org.jgroups.util.Util;
  */
 public class JGroupsManager {
 
+	private Node node;
+	
 	private JChannel jch;
 	private int publicPort; // Primary port our JGroups system listens on for
 							// other peer communication
@@ -34,7 +36,8 @@ public class JGroupsManager {
 
 	private ArrayList<JGroupsListener> listeners; // Registered listeners
 
-	public JGroupsManager(int publicPort, String publicIP, String gossipHost, int gossipPort) {
+	public JGroupsManager(Node node, int publicPort, String publicIP, String gossipHost, int gossipPort) {
+		this.node = node;
 		this.publicPort = publicPort;
 		this.publicIP = publicIP;
 		gossipRouter = new InetSocketAddress(gossipHost, gossipPort);
@@ -217,7 +220,7 @@ public class JGroupsManager {
 				}
 			} catch (Exception e) {
 				// Warn on the console
-				RMLog.warn("Received invalid packet message from peer with address " + message.getSrc().toString());
+				node.getLog().warn("Received invalid packet message from peer with address " + message.getSrc().toString());
 			}
 		}
 

@@ -13,20 +13,27 @@ public abstract class Node {
 	protected JGroupsManager jgm;
 	protected FileRepository fileRep;
 	
+	protected RMLog log;
+	
 	protected static Node node;
 
 	public Node(String configFile) {
-		config = new RMConfig();
+		config = new RMConfig(this);
 		config.safeLoad(configFile);
+		log = new RMLog();
 		node = this;
 		
-		fileRep = new FileRepository("./files");
+		fileRep = new FileRepository(this, "./files");
 		
 		PropertyConfigurator.configure("log4j.properties");
 	}
 	
 	public RMConfig getConfig() {
 		return config;
+	}
+	
+	public RMLog getLog() {
+		return log;
 	}
 	
 	public String getPublicIP() {

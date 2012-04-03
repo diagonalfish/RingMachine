@@ -4,39 +4,49 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class RMLog {
+	
+	private NodeConsole console;
 
-	public static void raw(String message) {
+	public void raw(String message) {
 		log(null, message);
 	}
 
-	public static void debug(String message) {
+	public void debug(String message) {
 		log("DEBUG", message);
 	}
 
-	public static void info(String message) {
+	public void info(String message) {
 		log("INFO", message);
 	}
 
-	public static void warn(String message) {
+	public void warn(String message) {
 		log("WARN", message);
 	}
 
-	public static void severe(String message) {
+	public void severe(String message) {
 		log("SEVERE", message);
 	}
 
-	public static void fatal(String message) {
+	public void fatal(String message) {
 		log("FATAL", message);
 	}
 
-	private static void log(String type, String message) {
+	private void log(String type, String message) {
 		SimpleDateFormat dformat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		StringBuilder builder = new StringBuilder();
 		builder.append("[" + dformat.format(new Date()) + "] ");
 		if (type != null)
 			builder.append("[" + type + "] ");
 		builder.append(message);
-		System.out.println(builder.toString());
+		
+		if (console == null)
+			System.out.println(builder.toString());
+		else
+			console.printLine(builder.toString());
+	}
+	
+	public void setConsole(NodeConsole console) {
+		this.console = console;
 	}
 
 }

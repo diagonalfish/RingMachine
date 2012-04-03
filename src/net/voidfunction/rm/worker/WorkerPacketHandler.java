@@ -1,6 +1,5 @@
 package net.voidfunction.rm.worker;
 
-import net.voidfunction.rm.common.RMLog;
 import net.voidfunction.rm.common.RMPacket;
 
 import org.jgroups.Address;
@@ -19,12 +18,12 @@ public class WorkerPacketHandler {
 			handle_MASTER_INFO(source, packet);
 			break;
 		default:
-			RMLog.warn("Received unusable packet of type " + type.name() + " from node " + source + ".");
+			node.getLog().warn("Received unusable packet of type " + type.name() + " from node " + source + ".");
 		}
 	}
 	
 	private void handle_MASTER_INFO(Address source, RMPacket packet) {
-		RMLog.info("Received MASTER_INFO from node " + source + ". Port: " + packet.getInteger("httpport"));
+		node.getLog().info("Received MASTER_INFO from node " + source + ". Port: " + packet.getInteger("httpport"));
 		// TODO: Store this info somewhere
 		node.getNetManager().packetSendWorkerInfo(source);
 	}

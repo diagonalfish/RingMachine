@@ -22,10 +22,12 @@ import org.apache.commons.io.IOUtils;
  */
 public class FileRepository {
 
+	private Node node;
 	private String directory;
 	private HashMap<String, RMFile> fileObjects;
 
-	public FileRepository(String directory) {
+	public FileRepository(Node node, String directory) {
+		this.node = node;
 		this.directory = directory;
 	}
 
@@ -48,13 +50,13 @@ public class FileRepository {
 		} catch (FileNotFoundException fnfe) {
 			// It's ok if it does not exist.
 			fileObjects = new HashMap<String, RMFile>();
-			RMLog.info("File repository list (" + fileDatName + ") not found. Starting with empty list.");
+			node.getLog().info("File repository list (" + fileDatName + ") not found. Starting with empty list.");
 		} catch (ClassNotFoundException e) {
 			// Very unlikely, so we default to empty list
-			RMLog.warn("Encountered error loading file  list (" + fileDatName + "). Starting with empty list.");
+			node.getLog().warn("Encountered error loading file  list (" + fileDatName + "). Starting with empty list.");
 			fileObjects = new HashMap<String, RMFile>();
 		}
-		RMLog.info("File repository (" + fileObjects.size() + " files) loaded.");
+		node.getLog().info("File repository (" + fileObjects.size() + " files) loaded.");
 	}
 	
 	/**
