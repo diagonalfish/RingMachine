@@ -7,6 +7,7 @@ import net.voidfunction.rm.common.JGroupsManager;
 import net.voidfunction.rm.common.Node;
 import net.voidfunction.rm.common.NodeConsole;
 import net.voidfunction.rm.common.NodeConsoleHandler;
+import net.voidfunction.rm.common.RMHTTPServer;
 
 /**
  * Main class for RingMachine master node.
@@ -102,6 +103,18 @@ public class MasterNode extends Node {
 			jgm.connect();
 		} catch (Exception e) {
 			getLog().fatal("Failed to start JGroups! " + e.getClass().getName() + " - " + e.getMessage());
+			System.exit(1);
+		}
+		
+		// Start web server
+		int httpPort = config.getInt("port.http", 8080);
+		getLog().info("Starting webserver on port " + httpPort + "...");
+		RMHTTPServer httpserver = new RMHTTPServer(httpPort);
+		httpserver.addServlet("/*", new TestServlet());
+		try {
+			httpserver.run();
+		} catch (Exception e) {
+			getLog().fatal("Failed to start HTTP server! " + e.getClass().getName() + " - " + e.getMessage());
 			System.exit(1);
 		}
 		
