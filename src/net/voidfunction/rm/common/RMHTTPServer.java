@@ -16,7 +16,6 @@ public class RMHTTPServer {
 		context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
-        org.eclipse.jetty.util.log.Log.setLog(null);
 	}
 	
 	public void addServlet(String path, HttpServlet servlet) {
