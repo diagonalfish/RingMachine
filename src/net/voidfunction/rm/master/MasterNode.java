@@ -110,7 +110,7 @@ public class MasterNode extends Node {
 		int httpPort = config.getInt("port.http", 8080);
 		getLog().info("Starting webserver on port " + httpPort + "...");
 		RMHTTPServer httpserver = new RMHTTPServer(httpPort);
-		httpserver.addServlet("/*", new TestServlet());
+		httpserver.addServlet("/admin/*", new AdminServlet(this, "admintemplates/"));
 		try {
 			httpserver.run();
 		} catch (Exception e) {

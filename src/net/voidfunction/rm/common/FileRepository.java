@@ -104,8 +104,12 @@ public class FileRepository {
 	 * Return a list of all files we know about.
 	 * @return
 	 */
-	public Collection<RMFile> getfileObjects() {
+	public Collection<RMFile> getFileObjects() {
 		return fileObjects.values();
+	}
+	
+	public int getFileCount() {
+		return fileObjects.size();
 	}
 	
 	/* Functions for manipulating file data */

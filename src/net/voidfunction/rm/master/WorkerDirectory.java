@@ -73,6 +73,14 @@ public class WorkerDirectory {
 		}
 		return null;
 	}
+	
+	/**
+	 * Returns number of known workers active in cluster
+	 * @return
+	 */
+	public int getWorkerCount() {
+		return workers.size();
+	}
 
 	/* Functions for workers' files */
 
