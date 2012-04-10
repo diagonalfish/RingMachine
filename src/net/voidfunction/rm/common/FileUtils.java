@@ -3,6 +3,7 @@ package net.voidfunction.rm.common;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.security.DigestInputStream;
@@ -22,6 +23,11 @@ public class FileUtils {
 	 * @throws IOException
 	 */
 	public static byte[] sha256Hash(File file) throws IOException {
+		FileInputStream in = new FileInputStream(file);
+		return sha256Hash(in);
+	}
+	
+	public static byte[] sha256Hash(InputStream in) throws IOException {
 		MessageDigest sha256 = null;
 		try {
 			sha256 = MessageDigest.getInstance("SHA-256");
@@ -29,11 +35,10 @@ public class FileUtils {
 			// This should not happen, ever
 			return new byte[0];
 		}
-		FileInputStream in = new FileInputStream(file);
 		DigestInputStream din = new DigestInputStream(in, sha256);
 		din.on(true);
 		byte[] buffer = new byte[8192];
-		while (din.read(buffer) != -1)
+		while (din.read(buffer) != -1) // Read everything into the digest input
 			;
 
 		return sha256.digest();

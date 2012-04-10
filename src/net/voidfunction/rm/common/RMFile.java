@@ -14,10 +14,10 @@ public class RMFile implements Serializable {
 
 	/* File data */
 	private String name, id, mimetype;
-	private int size;
+	private long size;
 	private byte[] sha256hash;
 
-	public RMFile(String name, String id, String mimetype, int size, byte[] hash) {
+	public RMFile(String name, String id, String mimetype, long size, byte[] hash) {
 		this.name = name;
 		this.id = id;
 		this.mimetype = mimetype;
@@ -34,7 +34,7 @@ public class RMFile implements Serializable {
 	 * @param size
 	 * @param hash
 	 */
-	public RMFile(String name, String mimetype, int size, byte[] hash) {
+	public RMFile(String name, String mimetype, long size, byte[] hash) {
 		this.name = name;
 		this.id = UUID.randomUUID().toString();
 		this.mimetype = mimetype;
@@ -66,7 +66,7 @@ public class RMFile implements Serializable {
 		this.mimetype = mimetype;
 	}
 
-	public int getSize() {
+	public long getSize() {
 		return size;
 	}
 

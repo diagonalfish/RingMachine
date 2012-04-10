@@ -39,6 +39,14 @@
 				<td><b>Type</b></td>
 				<td><b>Size</b></td>
 			</tr>
+			<!-- BEGIN: file -->
+			<tr>
+				<td>{FILEID}</td>
+				<td>{FILENAME}</td>
+				<td>{FILETYPE}</td>
+				<td>{FILESIZE}</td>
+			</tr>
+			<!-- END: file -->  
 		</table>
 				
 		</table>
