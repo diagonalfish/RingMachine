@@ -36,12 +36,14 @@ public class MasterNetManager extends JGroupsListener {
 	}
 	
 	public void onPeerJoin(Address newPeer) {
-		node.getLog().info("New cluster peer: " + newPeer);
+		node.getLog().info("Cluster peer joined: " + newPeer);
 		packetSendMasterInfo(newPeer);
 	}
 	
 	public void onPeerLeave(Address lostPeer) {
-		//TODO
+		node.getLog().info("Cluster peer left: " + lostPeer);
+		if (node.getWorkerDirectory().removeWorker(lostPeer))
+			node.getLog().info("Removed worker " + lostPeer);
 	}
 	
 	public void onMessage(Address source, RMPacket message) {

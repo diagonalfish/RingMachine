@@ -2,6 +2,8 @@ package net.voidfunction.rm.worker;
 
 import java.io.IOException;
 
+import org.jgroups.Address;
+
 import net.voidfunction.rm.common.IPAddressClient;
 import net.voidfunction.rm.common.JGroupsManager;
 import net.voidfunction.rm.common.Node;
@@ -15,6 +17,7 @@ public class WorkerNode extends Node {
 
 	private WorkerNetManager netManager;
 	
+	private Address masterAddr = null;
 	private int masterPort = 0;
 	
 	public static void main(String[] args) {
@@ -98,8 +101,13 @@ public class WorkerNode extends Node {
 		return netManager;
 	}
 	
-	public void setMasterPort(int port) {
+	public void setMasterInfo(Address addr, int port) {
+		masterAddr = addr;
 		masterPort = port;
+	}
+	
+	public Address getMasterAddr() {
+		return masterAddr;
 	}
 	
 	public int getMasterPort() {

@@ -113,7 +113,7 @@ public class MasterNode extends Node {
 		
 		// Start web server
 		int httpPort = config.getInt("port.http", 8080);
-		getLog().info("Starting webserver on port " + httpPort + "...");
+		getLog().info("Starting HTTP server on port " + httpPort + "...");
 		RMHTTPServer httpserver = new RMHTTPServer(httpPort);
 		httpserver.addServlet("/admin/*", new AdminServlet(this, "admintemplates/"));
 		try {
@@ -122,6 +122,7 @@ public class MasterNode extends Node {
 			getLog().fatal("Failed to start HTTP server! " + e.getClass().getName() + " - " + e.getMessage());
 			System.exit(1);
 		}
+		getLog().info("HTTP server started.");
 		
 		// Console
 		NodeConsole console;

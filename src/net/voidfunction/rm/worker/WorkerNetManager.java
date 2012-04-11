@@ -30,16 +30,20 @@ public class WorkerNetManager extends JGroupsListener {
 	
 	public void initialPeers(List<Address> peers) {
 		node.getLog().info("Received initial cluster peer list (" + peers.size() + " peers).");
-		// No further action right now
+		// No further action right now - not really useful to us. Nice to log, though.
 	}
 	
 	public void onPeerJoin(Address newPeer) {
-		node.getLog().info("New cluster peer: " + newPeer);
+		node.getLog().info("Cluster peer joined: " + newPeer);
 		// No further action
 	}
 	
 	public void onPeerLeave(Address lostPeer) {
-		// TODO: Check if it's the master node, react accordingly
+		node.getLog().info("Cluster peer left: " + lostPeer);
+		if (lostPeer.equals(node.getMasterAddr())) {
+			node.getLog().warn("Master node left the network! Resetting master node information.");
+			node.setMasterInfo(null, 0);
+		}
 	}
 	
 	public void onMessage(Address source, RMPacket message) {

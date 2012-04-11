@@ -168,7 +168,7 @@ public class JGroupsManager {
 						.setValue("oob_thread_pool_rejection_policy", "run"))
 				.addProtocol(new TCPGOSSIP().setValue("initial_hosts", initial_hosts))
 				.addProtocol(new MERGE2())
-				.addProtocol(new FD().setValue("timeout", 15000).setValue("max_tries", 2))
+				.addProtocol(new FD().setValue("timeout", 5000).setValue("max_tries", 2))
 				/* .addProtocol(new FD_SOCK().setValue("external_addr", publicIP)) */
 				.addProtocol(new VERIFY_SUSPECT())
 				/*.addProtocol(

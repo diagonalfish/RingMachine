@@ -45,11 +45,12 @@ public class WorkerDirectory {
 	}
 	
 	/**
-	 * Removes a worker record.
+	 * Removes a worker. Returns whether or not the remove succeeded.
 	 * @param addr
+	 * @return boolean
 	 */
-	public void removeWorker(Address addr) {
-		workers.remove(addr);
+	public boolean removeWorker(Address addr) {
+		return (workers.remove(addr) != null);
 	}
 	
 	/**

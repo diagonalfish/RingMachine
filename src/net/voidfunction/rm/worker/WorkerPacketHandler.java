@@ -25,11 +25,13 @@ public class WorkerPacketHandler {
 	private void handle_MASTER_INFO(Address source, RMPacket packet) {
 		node.getLog().info("Received MASTER_INFO from node " + source + ". Port: " + packet.getInteger("httpport"));
 		
-		// Store the master node's port
-		node.setMasterPort(packet.getInteger("httpport"));
+		// Store the master node's info
+		node.setMasterInfo(source, packet.getInteger("httpport"));
 		
 		// Inform the Master node about our HTTP ip/port
 		node.getNetManager().packetSendWorkerInfo(source);
+		
+		// TODO: Send MY_FILES packet
 	}
 	
 }
