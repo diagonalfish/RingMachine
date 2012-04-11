@@ -92,7 +92,12 @@ public class MasterNode extends Node {
 		workerDir = new WorkerDirectory(fileRep);
 		
 		// Create JGroupsManager object, configured to connect to our own gossip router
-		jgm = new JGroupsManager(this, baseP2Pport + 1, publicIP, "localhost", baseP2Pport);
+		String password = config.getString("password", null);
+		if (password == null) {
+			getLog().fatal("Password not defined! Set password=<pass> in the config file before starting the program.");
+			System.exit(1);
+		}
+		jgm = new JGroupsManager(this, baseP2Pport + 1, publicIP, "localhost", baseP2Pport, password);
 		
 		// Set up net listener
 		netManager = new MasterNetManager(this);

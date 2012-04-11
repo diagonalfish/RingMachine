@@ -12,6 +12,7 @@ import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 import org.jgroups.View;
+import org.jgroups.auth.MD5Token;
 import org.jgroups.protocols.*;
 import org.jgroups.protocols.pbcast.*;
 import org.jgroups.stack.ProtocolStack;
@@ -33,13 +34,15 @@ public class JGroupsManager {
 	private InetSocketAddress gossipRouter; // Address of GossipRouter we try to
 											// get peers from
 	private View curView; // List of other peers we should know about
+	private String password;
 
 	private ArrayList<JGroupsListener> listeners; // Registered listeners
 
-	public JGroupsManager(Node node, int publicPort, String publicIP, String gossipHost, int gossipPort) {
+	public JGroupsManager(Node node, int publicPort, String publicIP, String gossipHost, int gossipPort, String password) {
 		this.node = node;
 		this.publicPort = publicPort;
 		this.publicIP = publicIP;
+		this.password = password;
 		gossipRouter = new InetSocketAddress(gossipHost, gossipPort);
 
 		listeners = new ArrayList<JGroupsListener>();
@@ -150,6 +153,11 @@ public class JGroupsManager {
 		jch.setProtocolStack(stack);
 		ArrayList<InetSocketAddress> initial_hosts = new ArrayList<InetSocketAddress>();
 		initial_hosts.add(gossipRouter);
+		
+		AUTH authProt = new AUTH();
+		MD5Token token = new MD5Token(password, "SHA");
+		authProt.setAuthToken(token);
+		token.setAuth(authProt);
 
 		// Add protocols
 		stack.addProtocol(
@@ -171,6 +179,7 @@ public class JGroupsManager {
 				//.addProtocol(new UNICAST())
 				.addProtocol(new STABLE())
 				.addProtocol(new GMS().setValue("print_local_addr", true).setValue("view_bundling", true))
+				.addProtocol(authProt)
 				.addProtocol(new UFC())
 				.addProtocol(new MFC())
 				.addProtocol(new FRAG2())

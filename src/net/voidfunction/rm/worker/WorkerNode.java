@@ -64,7 +64,12 @@ public class WorkerNode extends Node {
 		node.getLog().info("Public IP address is " + publicIP);
 		
 		// Create JGroupsManager and WorkerNetManager
-		jgm = new JGroupsManager(this, P2Pport, publicIP, masterHost, masterPort);
+		String password = config.getString("password", null);
+		if (password == null) {
+			getLog().fatal("Password not defined! Set password=<pass> in the config file before starting the program.");
+			System.exit(1);
+		}
+		jgm = new JGroupsManager(this, P2Pport, publicIP, masterHost, masterPort, password);
 		netManager = new WorkerNetManager(this);
 		
 		// Start up JGroups engine and connect to master node
