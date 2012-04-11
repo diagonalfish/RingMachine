@@ -15,6 +15,8 @@ public class WorkerNode extends Node {
 
 	private WorkerNetManager netManager;
 	
+	private int masterPort = 0;
+	
 	public static void main(String[] args) {
 		new WorkerNode().start();
 	}
@@ -94,6 +96,14 @@ public class WorkerNode extends Node {
 	
 	public WorkerNetManager getNetManager() {
 		return netManager;
+	}
+	
+	public void setMasterPort(int port) {
+		masterPort = port;
+	}
+	
+	public int getMasterPort() {
+		return masterPort;
 	}
 
 }
