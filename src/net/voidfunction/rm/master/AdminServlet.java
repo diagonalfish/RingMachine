@@ -17,6 +17,7 @@ import javax.servlet.http.Part;
 import org.apache.commons.codec.binary.Hex;
 
 import net.sf.jtpl.Template;
+import net.voidfunction.rm.common.HTTPUtils;
 import net.voidfunction.rm.common.RMFile;
 import net.voidfunction.rm.common.FileUtils;
 
@@ -35,17 +36,20 @@ public class AdminServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
+		response.setHeader("Expires", HTTPUtils.getServerTime());
+		response.setHeader("Cache-Control", "no-cache, must-revalidate, max-age=0");
+		response.setHeader("Pragma", "no-cache");
 		
 		String page = request.getParameter("page");
 		if (page == null || page.equals("index"))
-			response.getWriter().print(pageIndex());
+			response.getWriter().print(pageIndex(request));
 		else if (page.equals("upload"))
 			response.getWriter().print(pageUpload());
 		
 	}
 	
 	/* Pages */
-	private String pageIndex() throws FileNotFoundException {
+	private String pageIndex(HttpServletRequest request) throws FileNotFoundException {
 		Template tpl = new Template(new File(templateDir + "index.tpl"));
 		tpl.assign("HOST", node.getPublicIP());
 		
@@ -61,6 +65,8 @@ public class AdminServlet extends HttpServlet {
 			tpl.assign("FILENAME", "");
 			tpl.assign("FILETYPE", "");
 			tpl.assign("FILESIZE", "");
+			tpl.assign("DOWNURL", "");
+			tpl.assign("DOWNTXT", "");
 			tpl.parse("main.file");
 		}
 		for(RMFile file : files) {
@@ -68,6 +74,9 @@ public class AdminServlet extends HttpServlet {
 			tpl.assign("FILENAME", file.getName());
 			tpl.assign("FILETYPE", file.getMimetype());
 			tpl.assign("FILESIZE", String.valueOf(file.getSize()));
+			tpl.assign("DOWNURL", "http://" + request.getLocalAddr() + ":" + node.getConfig().getInt("port.http", 8080) +
+					"/files/" + file.getId() + "/" + file.getName());
+			tpl.assign("DOWNTXT", "Download");
 			tpl.parse("main.file");
 		}
 		
@@ -110,6 +119,9 @@ public class AdminServlet extends HttpServlet {
 		tpl.assign("FILEID", newFile.getId());
 		tpl.parse("main");
 		response.getWriter().print(tpl.out());
+		
+		// Delete temp file
+		uploadFile.delete();
 	}
 	
 	

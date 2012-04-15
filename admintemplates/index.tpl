@@ -38,6 +38,7 @@
 				<td><b>Filename</b></td>
 				<td><b>Type</b></td>
 				<td><b>Size</b></td>
+				<td><b>DL Link</b></td>
 			</tr>
 			<!-- BEGIN: file -->
 			<tr>
@@ -45,6 +46,7 @@
 				<td>{FILENAME}</td>
 				<td>{FILETYPE}</td>
 				<td>{FILESIZE}</td>
+				<td><a href="{DOWNURL}">{DOWNTXT}</a></td>
 			</tr>
 			<!-- END: file -->  
 		</table>

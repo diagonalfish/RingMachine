@@ -2,6 +2,8 @@ package net.voidfunction.rm.master;
 
 import java.io.IOException;
 
+import net.voidfunction.rm.common.FileLocator;
+import net.voidfunction.rm.common.FileServlet;
 import net.voidfunction.rm.common.IPAddressClient;
 import net.voidfunction.rm.common.JGroupsManager;
 import net.voidfunction.rm.common.Node;
@@ -116,6 +118,8 @@ public class MasterNode extends Node {
 		getLog().info("Starting HTTP server on port " + httpPort + "...");
 		RMHTTPServer httpserver = new RMHTTPServer(httpPort);
 		httpserver.addServlet("/admin/*", new AdminServlet(this, "admintemplates/"));
+		FileServlet fileservlet = new FileServlet(this, new FileLocator());
+		httpserver.addServlet("/files/*", fileservlet);
 		try {
 			httpserver.run();
 		} catch (Exception e) {
