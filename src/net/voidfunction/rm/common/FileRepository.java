@@ -63,11 +63,15 @@ public class FileRepository {
 	 * Saves this repository's HashMap of RMFiles to files.dat in the repository's directory.
 	 * @throws IOException
 	 */
-	public void saveFiles() throws IOException {
-		String fileDatName = getFileName("files.dat");
-		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileDatName)));
-		out.writeObject(fileObjects);
-		out.close();
+	public void saveFiles() {
+		try {
+			String fileDatName = getFileName("files.dat");
+			ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileDatName)));
+			out.writeObject(fileObjects);
+			out.close();
+		} catch (IOException e) {
+			node.getLog().severe("Could not save file database: " + e.getClass().toString() + " - " + e.getMessage());
+		}
 	}
 	
 	/* Functions for adding to/removing from file hash table */
@@ -76,19 +80,22 @@ public class FileRepository {
 	 * Adds a new file to the list of files we know about.
 	 * @param file
 	 */
-	public void addFile(RMFile file) {
-		if (!fileObjects.containsKey(file))
+	public synchronized void addFile(RMFile file) {
+		if (!fileObjects.containsKey(file)) {
 			fileObjects.put(file.getId(), file);
+			saveFiles();
+		}
 	}
 
 	/**
 	 * Removes a file from the list of files we know about.
 	 * @param id
 	 */
-	public void removeFile(String id) {
+	public synchronized void removeFile(String id) {
 		RMFile file = getFileById(id);
 		if (file == null) return;
 		fileObjects.remove(file);
+		saveFiles();
 	}
 
 	/**
@@ -96,7 +103,7 @@ public class FileRepository {
 	 * @param id
 	 * @return
 	 */
-	public RMFile getFileById(String id) {
+	public synchronized RMFile getFileById(String id) {
 		return fileObjects.get(id);
 	}
 
@@ -104,11 +111,11 @@ public class FileRepository {
 	 * Return a list of all files we know about.
 	 * @return
 	 */
-	public Collection<RMFile> getFileObjects() {
+	public synchronized Collection<RMFile> getFileObjects() {
 		return fileObjects.values();
 	}
 	
-	public int getFileCount() {
+	public synchronized int getFileCount() {
 		return fileObjects.size();
 	}
 	
@@ -119,7 +126,7 @@ public class FileRepository {
 	 * attempts to create the directory if it doesn't exist.
 	 * @throws IOException
 	 */
-	public void checkDirectory() throws IOException {
+	public synchronized void checkDirectory() throws IOException {
 		File dirCheck = new File(directory);
 		if (!dirCheck.exists()) {
 			if (!dirCheck.mkdir())
@@ -135,7 +142,7 @@ public class FileRepository {
 	 * @param id
 	 * @return
 	 */
-	public boolean fileDataExists(String id) {
+	public synchronized boolean fileDataExists(String id) {
 		return new File(getFileName(id)).canRead();
 	}
 
@@ -146,7 +153,7 @@ public class FileRepository {
 	 * @return
 	 * @throws IOException
 	 */
-	public InputStream getFileData(String id) throws IOException {
+	public synchronized InputStream getFileData(String id) throws IOException {
 		if (getFileById(id) == null)
 			return null;
 		if (!fileDataExists(id))
@@ -192,7 +199,7 @@ public class FileRepository {
 	 * @param id
 	 * @throws IOException
 	 */
-	public void deleteFileData(String id) throws IOException {
+	public synchronized void deleteFileData(String id) throws IOException {
 		if (getFileById(id) == null)
 			return;
 		
