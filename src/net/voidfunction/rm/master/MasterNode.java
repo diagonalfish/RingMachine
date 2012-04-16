@@ -17,7 +17,6 @@ import net.voidfunction.rm.common.RMHTTPServer;
 public class MasterNode extends Node {
 
 	private RMGossipRouter grouter;
-	private IPAddressServer ipserver;
 	
 	private MasterNetManager netManager;
 	
@@ -64,11 +63,12 @@ public class MasterNode extends Node {
 
 		// Start IP address server
 		getLog().info("Starting IP address server on port " + (baseP2Pport + 2) + "...");
-		ipserver = new IPAddressServer(baseP2Pport + 2);
+		RMHTTPServer ipserver = new RMHTTPServer(baseP2Pport + 2);
+		ipserver.addServlet("/*", new IPAddressServlet());
 		try {
-			ipserver.start();
-		} catch (IOException e) {
-			// Apparently we failed to start the gossip router
+			ipserver.run();
+		} catch (Exception e) {
+			// Apparently we failed to start the IP server
 			getLog().fatal("Failed to start the ip address server! " + e.getClass().getName() + ": "
 					+ e.getMessage());
 			System.exit(1);
