@@ -25,6 +25,7 @@ public class FileServlet extends HttpServlet {
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.getSession().setMaxInactiveInterval(120);
+		response.setHeader("Date", HTTPUtils.getServerTime(0));
 		
 		String[] urlParts = request.getRequestURI().substring(1).split("/");
 		if (urlParts.length < 3) {
@@ -78,7 +79,7 @@ public class FileServlet extends HttpServlet {
 				}
 				else {
 					response.setStatus(HttpServletResponse.SC_OK);
-					response.setHeader("Expires", HTTPUtils.getServerTime());
+					response.setHeader("Expires", HTTPUtils.getServerTime(3600));
 					response.setHeader("Cache-Control", "max-age=3600");
 					response.setContentType(file.getMimetype());
 					response.setHeader("Content-Length", String.valueOf(file.getSize()));

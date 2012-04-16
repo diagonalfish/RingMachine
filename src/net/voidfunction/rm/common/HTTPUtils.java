@@ -2,6 +2,7 @@ package net.voidfunction.rm.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -9,12 +10,16 @@ import java.util.TimeZone;
  * Utility functions for HTTP servers
  */
 public class HTTPUtils {
-
-	public static String getServerTime() {
-		Calendar calendar = Calendar.getInstance();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+	private static SimpleDateFormat dateFormat;
+	static {
+		dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
 		dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-		return dateFormat.format(calendar.getTime());
+	}
+
+	public static String getServerTime(long offset) {
+		Calendar calendar = Calendar.getInstance();
+		Date outDate = new Date(calendar.getTime().getTime() + (offset * 1000));
+		return dateFormat.format(outDate);
 	}
 
 }

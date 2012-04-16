@@ -28,7 +28,7 @@ public class IPAddressServer implements HttpHandler {
 		exch.getResponseHeaders().set("Server", "RM-IPAddressServer/0.1");
 		exch.getResponseHeaders().set("Connection", "close");
 		exch.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
-		exch.getResponseHeaders().set("Date", HTTPUtils.getServerTime());
+		exch.getResponseHeaders().set("Date", HTTPUtils.getServerTime(0));
 		exch.sendResponseHeaders(200, remoteip.length());
 
 		OutputStream out = exch.getResponseBody();

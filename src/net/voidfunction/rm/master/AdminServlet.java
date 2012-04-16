@@ -34,9 +34,10 @@ public class AdminServlet extends HttpServlet {
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setHeader("Date", HTTPUtils.getServerTime(0));
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
-		response.setHeader("Expires", HTTPUtils.getServerTime());
+		response.setHeader("Expires", HTTPUtils.getServerTime(0));
 		response.setHeader("Cache-Control", "no-cache, must-revalidate, max-age=0");
 		response.setHeader("Pragma", "no-cache");
 		
@@ -93,6 +94,7 @@ public class AdminServlet extends HttpServlet {
 	
 	/* File upload */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setHeader("Date", HTTPUtils.getServerTime(0));
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		
@@ -122,6 +124,9 @@ public class AdminServlet extends HttpServlet {
 		
 		// Delete temp file
 		uploadFile.delete();
+		
+		// Log
+		node.getLog().info("New file added (via web): " + newFile.getId() + " (" + newFile.getName() + ")");
 	}
 	
 	
