@@ -81,7 +81,7 @@ public class FileRepository {
 	 * @param file
 	 */
 	public synchronized void addFile(RMFile file) {
-		if (!fileObjects.containsKey(file)) {
+		if (!fileObjects.containsKey(file.getId())) {
 			fileObjects.put(file.getId(), file);
 			saveFiles();
 		}
@@ -105,6 +105,15 @@ public class FileRepository {
 	 */
 	public synchronized RMFile getFileById(String id) {
 		return fileObjects.get(id);
+	}
+	
+	/**
+	 * Check whether a file exists with the given id.
+	 * @param id
+	 * @return
+	 */
+	public synchronized boolean checkFile(String id) {
+		return fileObjects.containsKey(id);
 	}
 
 	/**

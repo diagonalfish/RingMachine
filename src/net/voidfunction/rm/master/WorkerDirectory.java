@@ -1,6 +1,7 @@
 package net.voidfunction.rm.master;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -123,7 +124,7 @@ public class WorkerDirectory {
 	 * @param fileId
 	 * @return
 	 */
-	public List<Address> workersWithFile(String fileId) {
+	public List<Address> getWorkersWithFile(String fileId) {
 		List<Address> workerList = new ArrayList<Address>();
 
 		RMFile file = fileRep.getFileById(fileId);
@@ -135,6 +136,48 @@ public class WorkerDirectory {
 				workerList.add(addr);
 		}
 		
+		Collections.shuffle(workerList);
+		return workerList;
+	}
+	
+	/**
+	 * Count the workers that have a given file - slightly
+	 * more efficient for this purpose than getting a list of them.
+	 * @param fileId
+	 * @return
+	 */
+	public int countWorkersWithFile(String fileId) {
+		RMFile file = fileRep.getFileById(fileId);
+		if (file == null)
+			return 0;
+		
+		int count = 0;
+		for(Address addr : workers.keySet()) {
+			if (workers.get(addr).hasFile(file))
+				count++;
+		}
+		return count;
+	}
+	
+	/**
+	 * Returns a list of worker addresses that DO NOT have the given ID. This can then
+	 * be selected from to find new locations for replicas.
+	 * @param fileId
+	 * @return
+	 */
+	public List<Address> getWorkersWithoutFile(String fileId) {
+		List<Address> workerList = new ArrayList<Address>();
+
+		RMFile file = fileRep.getFileById(fileId);
+		if (file == null)
+			return workerList;
+		
+		for(Address addr : workers.keySet()) {
+			if (!workers.get(addr).hasFile(file))
+				workerList.add(addr);
+		}
+		
+		Collections.shuffle(workerList);
 		return workerList;
 	}
 	

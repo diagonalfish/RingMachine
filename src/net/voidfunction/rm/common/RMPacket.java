@@ -65,20 +65,13 @@ public class RMPacket implements Serializable {
 		
 		/**
 		 * Sent by master to worker. Informs that this node no longer needs to have this file in
-		 * its index. The worker does not need to act upon this immediately, but when it does, it
-		 * should send a REMOVED_FILE to the master.
+		 * its index. The worker does not need to act upon this immediately. No reply is necessary -
+		 * the master will assume that the worker no longer has this file after the message is
+		 * sent.
 		 * Fields:
 		 *  - fileid: String, file id
 		 */
-		OK_TO_REMOVE_FILE,
-		
-		/**
-		 * Sent by a worker to master. Informs that the worker has removed this file from its index
-		 * so that the master won't redirect requests there anymore.
-		 * Fields:
-		 *  - fileid: String, file id
-		 */
-		REMOVED_FILE,
+		MAY_DELETE_FILE,
 		
 		/**
 		 * Sent by a master to all workers. Announces that this file has been removed from the worker's
@@ -88,7 +81,7 @@ public class RMPacket implements Serializable {
 		 * Fields:
 		 *  - fileid: String, file id
 		 */
-		DELETE_FILE
+		MUST_DELETE_FILE
 	}
 
 	private RMPacket.Type type;

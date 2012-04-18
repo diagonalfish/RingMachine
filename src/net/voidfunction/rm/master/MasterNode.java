@@ -20,6 +20,8 @@ public class MasterNode extends Node {
 	
 	private MasterNetManager netManager;
 	
+	private ReplicationManager repManager;
+	
 	// Worker directory and File repository
 	private WorkerDirectory workerDir;
 
@@ -113,6 +115,10 @@ public class MasterNode extends Node {
 			System.exit(1);
 		}
 		
+		// Start replication manager
+		getLog().info("Starting replication manager.");
+		repManager = new ReplicationManager(this);
+		
 		// Start web server
 		int httpPort = config.getInt("port.http", 8080);
 		getLog().info("Starting HTTP server on port " + httpPort + "...");
@@ -144,6 +150,10 @@ public class MasterNode extends Node {
 		return netManager;
 	}
 
+	public ReplicationManager getReplicationManager() {
+		return repManager;
+	}
+	
 	public WorkerDirectory getWorkerDirectory() {
 		return workerDir;
 	}
