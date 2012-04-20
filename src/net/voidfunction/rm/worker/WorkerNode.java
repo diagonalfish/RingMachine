@@ -23,7 +23,7 @@ public class WorkerNode extends Node {
 	}
 
 	public WorkerNode() {
-		super("worker.properties");
+		super("worker.properties", "./workerfiles");
 	}
 
 	public void start() {
@@ -118,22 +118,23 @@ public class WorkerNode extends Node {
 			console.run();
 		} catch (IOException e) {
 		}
+
 	}
 
 	public WorkerNetManager getNetManager() {
 		return netManager;
 	}
 
-	public void setMasterInfo(Address addr, int port) {
+	public synchronized void setMasterInfo(Address addr, int port) {
 		masterAddr = addr;
 		masterPort = port;
 	}
 
-	public Address getMasterAddr() {
+	public synchronized Address getMasterAddr() {
 		return masterAddr;
 	}
 
-	public int getMasterPort() {
+	public synchronized int getMasterPort() {
 		return masterPort;
 	}
 	

@@ -17,13 +17,13 @@ public abstract class Node {
 
 	protected static Node node;
 
-	public Node(String configFile) {
+	public Node(String configFile, String fileDir) {
 		config = new RMConfig(this);
 		config.safeLoad(configFile);
 		log = new RMLog();
 		node = this;
 
-		fileRep = new FileRepository(this, "./files");
+		fileRep = new FileRepository(this, fileDir);
 
 		PropertyConfigurator.configure("log4j.properties");
 	}

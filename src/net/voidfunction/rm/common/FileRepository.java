@@ -77,15 +77,18 @@ public class FileRepository {
 	/* Functions for adding to/removing from file hash table */
 
 	/**
-	 * Adds a new file to the list of files we know about.
+	 * Adds a new file to the list of files we know about, along with its data.
 	 * 
 	 * @param file
+	 * @param data
+	 * @throws IOException 
 	 */
-	public synchronized void addFile(RMFile file) {
+	public synchronized void addFile(RMFile file, InputStream data) throws IOException {
 		if (!fileObjects.containsKey(file.getId())) {
 			fileObjects.put(file.getId(), file);
 			saveFiles();
 		}
+		storeFileData(data, file.getId());
 	}
 
 	/**
@@ -205,7 +208,7 @@ public class FileRepository {
 	 * @param id
 	 * @throws IOException
 	 */
-	public void storeFileData(InputStream data, String id) throws IOException {
+	private void storeFileData(InputStream data, String id) throws IOException {
 		RMFile file = getFileById(id);
 
 		if (file == null)
@@ -239,7 +242,7 @@ public class FileRepository {
 	 * @param id
 	 * @throws IOException
 	 */
-	public synchronized void deleteFileData(String id) throws IOException {
+	private synchronized void deleteFileData(String id) throws IOException {
 		if (getFileById(id) == null)
 			return;
 

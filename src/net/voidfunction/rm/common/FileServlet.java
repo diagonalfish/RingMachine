@@ -70,7 +70,6 @@ public class FileServlet extends HttpServlet {
 				node.getLog().info(logOut);
 
 				// Caching magic - we can safely assume the file won't change
-				// for now
 				String etag = Hex.encodeHexString(file.getHash());
 				response.setHeader("ETag", etag);
 				String ifModifiedSince = request.getHeader("If-Modified-Since");
@@ -90,6 +89,7 @@ public class FileServlet extends HttpServlet {
 					response.setHeader("Cache-Control", "max-age=3600");
 					response.setContentType(file.getMimetype());
 					response.setHeader("Content-Length", String.valueOf(file.getSize()));
+					
 					InputStream fileIn = node.getFileRepository().getFileData(fileID);
 					IOUtils.copyLarge(fileIn, response.getOutputStream());
 				}

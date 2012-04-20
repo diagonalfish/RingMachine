@@ -120,47 +120,31 @@ public class RMPacket implements Serializable {
 	}
 
 	public Integer getInteger(String key) {
-		try {
-			Object d = data.get(key.toLowerCase());
-			if (d == null)
-				return null;
-			return (Integer)d;
-		} catch (ClassCastException e) {
+		Object d = data.get(key.toLowerCase());
+		if (d == null || !(d instanceof Integer))
 			return null;
-		}
+		return (Integer)d;
 	}
 
 	public Double getDouble(String key) {
-		try {
-			Object d = data.get(key.toLowerCase());
-			if (d == null)
-				return null;
-			return (Double)d;
-		} catch (ClassCastException e) {
+		Object d = data.get(key.toLowerCase());
+		if (d == null || !(d instanceof Double))
 			return null;
-		}
+		return (Double)d;
 	}
 
 	public String getString(String key) {
-		try {
-			Object d = data.get(key.toLowerCase());
-			if (d == null)
-				return null;
-			return (String)d;
-		} catch (ClassCastException e) {
+		Object d = data.get(key.toLowerCase());
+		if (d == null || !(d instanceof String))
 			return null;
-		}
+		return (String)d;
 	}
 
 	public Boolean getBoolean(String key) {
-		try {
-			Object d = data.get(key.toLowerCase());
-			if (d == null)
-				return null;
-			return (Boolean)d;
-		} catch (ClassCastException e) {
+		Object d = data.get(key.toLowerCase());
+		if (d == null || !(d instanceof Boolean))
 			return null;
-		}
+		return (Boolean)d;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -173,6 +157,13 @@ public class RMPacket implements Serializable {
 		} catch (ClassCastException e) {
 			return null;
 		}
+	}
+	
+	public RMFile getFile(String key) {
+		Object d = data.get(key.toLowerCase());
+		if (d == null || !(d instanceof RMFile))
+			return null;
+		return (RMFile)d;
 	}
 
 	public void print() {

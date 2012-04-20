@@ -65,6 +65,20 @@ public class MasterNetManager extends JGroupsListener {
 		sendPacket(target, packet);
 	}
 	
+	public void packetSendGetFile(Address target, RMFile file) {
+		node.getLog().info("Sending GET_FILE to node " + target);
+		RMPacket packet = new RMPacket(RMPacket.Type.GET_FILE);
+		packet.setDataVal("file", file);
+		sendPacket(target, packet);
+	}
+	
+	public void packetSendMayRemoveFile(Address target, String fileId) {
+		node.getLog().info("Sending MAY_REMOVE_FILE to node " + target);
+		RMPacket packet = new RMPacket(RMPacket.Type.MAY_REMOVE_FILE);
+		packet.setDataVal("fileid", fileId);
+		sendPacket(target, packet);
+	}
+	
 	private void sendPacket(Address target, RMPacket packet) {
 		try {
 			jgm.sendMessage(packet, target);

@@ -3,7 +3,7 @@ package net.voidfunction.rm.worker;
 import java.io.IOException;
 import java.util.List;
 
-import net.voidfunction.rm.common.RMPacket;
+import net.voidfunction.rm.common.*;
 
 import org.jgroups.Address;
 
@@ -22,6 +22,10 @@ public class WorkerPacketHandler {
 			break;
 		case YOUR_FILES:
 			handle_YOUR_FILES(source, packet);
+			break;
+		case GET_FILE:
+			handle_GET_FILE(source, packet);
+			break;
 		default:
 			node.getLog().warn(
 				"Received unusable packet of type " + type.name() + " from node " + source + ".");
@@ -60,6 +64,14 @@ public class WorkerPacketHandler {
 		} catch (IOException e) {
 			node.getLog().warn("Error removing file: " + e.getMessage());
 		}
+	}
+	
+	private void handle_GET_FILE(Address source, RMPacket packet) {
+		node.getLog().info("Received GET_FILE from node " + source + ".");
+		RMFile file = packet.getFile("file");
+		
+		FileFetcher fetcher = new FileFetcher(node, file);
+		fetcher.start();
 	}
 
 }

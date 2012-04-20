@@ -56,8 +56,8 @@ public class ReplicationManager implements FileDownloadListener {
 			// satisfied
 			int reps = node.getWorkerDirectory().countWorkersWithFile(file.getId());
 			int needReps = minReps - reps;
+			node.getLog().debug("File " + file.getId() + " needs " + needReps + " more replicas.");
 			if (needReps > 0) {
-				node.getLog().debug("File " + file.getId() + " needs " + needReps + " more replicas.");
 				assignWorkers(decisions, file, needReps, true);
 			}
 		}
@@ -145,6 +145,12 @@ public class ReplicationManager implements FileDownloadListener {
 			for (Address worker : decisions.keySet()) {
 				ReplicationDecision dec = decisions.get(worker);
 				node.getLog().debug("Decision: " + worker + " -> " + dec.getFile().getId());
+				
+				// Send out packets to the workers
+				if (dec.shouldAdd())
+					node.getNetManager().packetSendGetFile(worker, dec.getFile());
+				else
+					node.getNetManager().packetSendMayRemoveFile(worker, dec.getFile().getId());
 			}
 		}
 

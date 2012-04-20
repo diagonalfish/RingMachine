@@ -23,7 +23,7 @@ public class MasterNode extends Node {
 	}
 
 	public MasterNode() {
-		super("master.properties");
+		super("master.properties", "./files");
 	}
 
 	public void start() {

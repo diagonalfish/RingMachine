@@ -108,8 +108,7 @@ public class AdminServlet extends HttpServlet {
 
 		// Create a new file object, add it to the database, and store data
 		RMFile newFile = new RMFile(filename, contentType, size, hash);
-		node.getFileRepository().addFile(newFile);
-		node.getFileRepository().storeFileData(uploadFile.getInputStream(), newFile.getId());
+		node.getFileRepository().addFile(newFile, uploadFile.getInputStream());
 
 		// Output data for interested parties
 		Template tpl = new Template(new File(templateDir + "uploadsuccess.tpl"));

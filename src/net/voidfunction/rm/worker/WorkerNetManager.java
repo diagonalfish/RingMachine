@@ -69,6 +69,13 @@ public class WorkerNetManager extends JGroupsListener {
 		sendPacket(target, packet);
 	}
 	
+	public void packetSendGotFile(Address target, String fileid) {
+		node.getLog().info("Sending GOT_FILE to master node.");
+		RMPacket packet = new RMPacket(RMPacket.Type.GOT_FILE);
+		packet.setDataVal("fileid", fileid);
+		sendPacket(target, packet);
+	}
+	
 	private void sendPacket(Address target, RMPacket packet) {
 		try {
 			jgm.sendMessage(packet, target);

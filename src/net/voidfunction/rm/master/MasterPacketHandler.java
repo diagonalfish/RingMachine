@@ -24,6 +24,9 @@ public class MasterPacketHandler {
 		case MY_FILES:
 			handle_MY_FILES(source, packet);
 			break;
+		case GOT_FILE:
+			handle_GOT_FILE(source, packet);
+			break;
 		default:
 			node.getLog().warn(
 				"Received unusable packet of type " + type.name() + " from node " + source + ".");
@@ -48,12 +51,22 @@ public class MasterPacketHandler {
 		if (tempKeepFiles == null) return;
 		List<String> workerFiles = (List<String>)(List)tempKeepFiles; // Type erasure...
 		
+		// Filter out the files that the worker should keep, and make note of the ones they have.
 		for (String workerFile : workerFiles) {
-			if (node.getFileRepository().checkFile(workerFile))
+			if (node.getFileRepository().checkFile(workerFile)) {
 				keepFiles.add(workerFile);
+				node.getWorkerDirectory().addWorkerFile(source, workerFile);
+			}
 		}
 		
+		node.getNetManager().packetSendYourFiles(source, keepFiles);
+	}
+	
+	private void handle_GOT_FILE(Address source, RMPacket packet) {
+		node.getLog().info("Received GOT_FILE from node " + source + ".");
 		
+		String fileId = packet.getString("fileid");
+		node.getWorkerDirectory().addWorkerFile(source, fileId);
 	}
 
 }
