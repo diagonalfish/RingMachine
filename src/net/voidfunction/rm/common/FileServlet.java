@@ -29,13 +29,14 @@ public class FileServlet extends HttpServlet {
 		response.setHeader("Date", HTTPUtils.getServerTime(0));
 
 		String[] urlParts = request.getRequestURI().substring(1).split("/");
-		if (urlParts.length < 3) {
+		if (urlParts.length < 2) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-
 		String fileID = urlParts[1];
-		String fileName = urlParts[2];
+		String fileName = "No filename";
+		if (urlParts.length > 2)
+			fileName = urlParts[2];
 
 		String logOut = "File " + fileID + " (" + fileName + ") requested by " + request.getRemoteHost()
 			+ " [Result: ";
