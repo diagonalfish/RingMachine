@@ -4,9 +4,10 @@ import java.util.*;
 
 import org.jgroups.Address;
 
+import net.voidfunction.rm.common.FileDownloadListener;
 import net.voidfunction.rm.common.RMFile;
 
-public class ReplicationManager {
+public class ReplicationManager implements FileDownloadListener {
 	
 	private MasterNode node;
 	private int interval, window;
@@ -109,6 +110,8 @@ public class ReplicationManager {
 			else if (needReps > 0)
 				assignWorkers(decisions, file, needReps, true);
 		}
+		
+		lastPeriodDLs.clear();
 		*/
 		
 		return decisions; //TODO
