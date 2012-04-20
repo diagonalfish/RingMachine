@@ -12,32 +12,34 @@ import org.apache.commons.io.IOUtils;
 public class FileServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 8461560600264423624L;
-	
+
 	private Node node;
 	private FileLocator locator;
 	private FileDownloadListener dlListener;
-	
+
 	public FileServlet(Node node, FileLocator locator, FileDownloadListener dlListener) {
 		this.node = node;
 		this.locator = locator;
 		this.dlListener = dlListener;
 	}
-	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+		IOException {
 		request.getSession().setMaxInactiveInterval(120);
 		response.setHeader("Date", HTTPUtils.getServerTime(0));
-		
+
 		String[] urlParts = request.getRequestURI().substring(1).split("/");
 		if (urlParts.length < 3) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		
+
 		String fileID = urlParts[1];
 		String fileName = urlParts[2];
-		
-		String logOut = "File " + fileID + " (" + fileName + ") requested by " + request.getRemoteHost() + " [Result: ";
-		
+
+		String logOut = "File " + fileID + " (" + fileName + ") requested by " + request.getRemoteHost()
+			+ " [Result: ";
+
 		String redirURL = (String)request.getSession().getAttribute("fileURL-" + fileID);
 		if (redirURL == null)
 			redirURL = locator.locateURL(fileID);
@@ -47,27 +49,27 @@ public class FileServlet extends HttpServlet {
 			// Redirect to the new URL
 			logOut += "Redirect]";
 			node.getLog().info(logOut);
-			
+
 			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 			response.setHeader("Location", redirURL);
-		}
-		else {
+		} else {
 			// We have to try to find it ourselves
 			RMFile file = node.getFileRepository().getFileById(fileID);
 			if (file == null) {
 				// File not found.
 				logOut += "Not found]";
 				node.getLog().info(logOut);
-				
+
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				response.getWriter().write("<b>404 Not Found</b><br/>Could not find a file with ID " + fileID);
-			}
-			else {
+				response.getWriter()
+					.write("<b>404 Not Found</b><br/>Could not find a file with ID " + fileID);
+			} else {
 				// File found
 				logOut += "Found locally]";
 				node.getLog().info(logOut);
-				
-				// Caching magic - we can safely assume the file won't change for now
+
+				// Caching magic - we can safely assume the file won't change
+				// for now
 				String etag = Hex.encodeHexString(file.getHash());
 				response.setHeader("ETag", etag);
 				String ifModifiedSince = request.getHeader("If-Modified-Since");
@@ -76,11 +78,11 @@ public class FileServlet extends HttpServlet {
 				if (ifModifiedSince != null || etagMatch) {
 					response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 					response.setHeader("Last-Modified", ifModifiedSince);
-				}
-				else {
+				} else {
 					// Let the download listener know
-					if (dlListener != null) dlListener.fileDownloaded(file);
-					
+					if (dlListener != null)
+						dlListener.fileDownloaded(file);
+
 					// Send the HTTP response and file data
 					response.setStatus(HttpServletResponse.SC_OK);
 					response.setHeader("Expires", HTTPUtils.getServerTime(3600));

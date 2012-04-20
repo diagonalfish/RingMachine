@@ -22,38 +22,39 @@ public class AdminServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private String templateDir;
 	private MasterNode node;
-	
+
 	public AdminServlet(MasterNode node, String templateDir) {
 		this.node = node;
 		this.templateDir = templateDir;
 	}
-	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+		IOException {
 		response.setHeader("Date", HTTPUtils.getServerTime(0));
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setHeader("Expires", HTTPUtils.getServerTime(0));
 		response.setHeader("Cache-Control", "no-cache, must-revalidate, max-age=0");
 		response.setHeader("Pragma", "no-cache");
-		
+
 		String page = request.getParameter("page");
 		if (page == null || page.equals("index"))
 			response.getWriter().print(pageIndex(request));
 		else if (page.equals("upload"))
 			response.getWriter().print(pageUpload());
-		
+
 	}
-	
+
 	/* Pages */
 	private String pageIndex(HttpServletRequest request) throws FileNotFoundException {
 		Template tpl = new Template(new File(templateDir + "index.tpl"));
 		tpl.assign("HOST", node.getPublicIP());
-		
+
 		// Status info
 		tpl.assign("UPTIME", getDuration(ManagementFactory.getRuntimeMXBean().getUptime()));
 		tpl.assign("WORKERCOUNT", String.valueOf(node.getWorkerDirectory().getWorkerCount()));
 		tpl.assign("FILECOUNT", String.valueOf(node.getFileRepository().getFileCount()));
-		
+
 		// Files
 		Collection<RMFile> files = node.getFileRepository().getFileObjects();
 		if (files.size() == 0) {
@@ -65,48 +66,51 @@ public class AdminServlet extends HttpServlet {
 			tpl.assign("DOWNTXT", "");
 			tpl.parse("main.file");
 		}
-		for(RMFile file : files) {
+		for (RMFile file : files) {
 			tpl.assign("FILEID", file.getId());
 			tpl.assign("FILENAME", file.getName());
 			tpl.assign("FILETYPE", file.getMimetype());
 			tpl.assign("FILESIZE", String.valueOf(file.getSize()));
-			tpl.assign("DOWNURL", "http://" + request.getLocalAddr() + ":" + node.getConfig().getInt("port.http", 8080) +
-					"/files/" + file.getId() + "/" + file.getName());
+			tpl.assign("DOWNURL", "http://" + request.getLocalAddr() + ":"
+				+ node.getConfig().getInt("port.http", 8080) + "/files/" + file.getId() + "/"
+				+ file.getName());
 			tpl.assign("DOWNTXT", "Download");
 			tpl.parse("main.file");
 		}
-		
+
 		tpl.parse("main");
 		return tpl.out();
 	}
-	
+
 	private String pageUpload() throws FileNotFoundException {
 		Template tpl = new Template(new File(templateDir + "upload.tpl"));
-		
+
 		tpl.parse("main");
 		return tpl.out();
 	}
-	
+
 	/* File upload */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+		IOException {
 		response.setHeader("Date", HTTPUtils.getServerTime(0));
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
-		
+
 		Part uploadFile = request.getPart("uploadfile");
-		if (uploadFile == null) throw new ServletException("Uploaded file is null.");
-		
+		if (uploadFile == null)
+			throw new ServletException("Uploaded file is null.");
+
 		// Get some info about the file
 		String filename = getFilename(uploadFile);
 		String contentType = uploadFile.getContentType();
 		long size = uploadFile.getSize();
 		byte[] hash = FileUtils.sha256Hash(uploadFile.getInputStream());
-		
+
 		// Create a new file object, add it to the database, and store data
 		RMFile newFile = new RMFile(filename, contentType, size, hash);
 		node.getFileRepository().addFile(newFile);
 		node.getFileRepository().storeFileData(uploadFile.getInputStream(), newFile.getId());
-		
+
 		// Output data for interested parties
 		Template tpl = new Template(new File(templateDir + "uploadsuccess.tpl"));
 		tpl.assign("FILENAME", filename);
@@ -116,27 +120,26 @@ public class AdminServlet extends HttpServlet {
 		tpl.assign("FILEID", newFile.getId());
 		tpl.parse("main");
 		response.getWriter().print(tpl.out());
-		
+
 		// Delete temp file
 		uploadFile.delete();
-		
+
 		// Log
 		node.getLog().info("New file added (via web): " + newFile.getId() + " (" + newFile.getName() + ")");
 	}
-	
-	
+
 	/* Util */
-	
+
 	private String getFilename(Part part) {
 		for (String cd : part.getHeader("content-disposition").split(";")) {
 			if (cd.trim().startsWith("filename"))
-				return cd.substring(cd.indexOf('=') + 1).trim() .replace("\"", "");
+				return cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
 		}
 		return null;
 	}
-	
+
 	public static String getDuration(long millis) {
-		
+
 		long days = TimeUnit.MILLISECONDS.toDays(millis);
 		millis -= TimeUnit.DAYS.toMillis(days);
 		long hours = TimeUnit.MILLISECONDS.toHours(millis);
@@ -144,7 +147,7 @@ public class AdminServlet extends HttpServlet {
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
 		millis -= TimeUnit.MINUTES.toMillis(minutes);
 		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append(days);
 		sb.append(" days, ");
@@ -154,8 +157,8 @@ public class AdminServlet extends HttpServlet {
 		sb.append(" minutes, ");
 		sb.append(seconds);
 		sb.append(" seconds");
-		
-		return(sb.toString());
+
+		return (sb.toString());
 	}
-	
+
 }

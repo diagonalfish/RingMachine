@@ -110,7 +110,7 @@ public class RMGossipRouter {
 	protected List<ConnectionTearListener> connectionTearListeners = new CopyOnWriteArrayList<ConnectionTearListener>();
 
 	protected ThreadFactory default_thread_factory = new DefaultThreadFactory(new ThreadGroup("GosipRouter"),
-			"gossip-handlers", true, true);
+		"gossip-handlers", true, true);
 
 	protected Timer timer = null;
 
@@ -242,7 +242,7 @@ public class RMGossipRouter {
 	 * Brings the Router into a fully functional state.
 	 */
 	@ManagedOperation(description = "Lifecycle operation. Called after create(). When this method is called, "
-			+ "the managed attributes have already been set. Brings the Router into a fully functional state.")
+		+ "the managed attributes have already been set. Brings the Router into a fully functional state.")
 	public void start() throws Exception {
 		if (running.compareAndSet(false, true)) {
 			if (jmx && !registered) {
@@ -426,7 +426,7 @@ public class RMGossipRouter {
 		long diff, currentTime = System.currentTimeMillis();
 		List<ConnectionHandler> victims = new ArrayList<ConnectionHandler>();
 		for (Iterator<Entry<String, ConcurrentMap<Address, ConnectionHandler>>> it = routingTable.entrySet()
-				.iterator(); it.hasNext();) {
+			.iterator(); it.hasNext();) {
 			Map<Address, ConnectionHandler> map = it.next().getValue();
 			if (map == null || map.isEmpty()) {
 				it.remove();
@@ -460,7 +460,7 @@ public class RMGossipRouter {
 			if (handler == null) {
 				if (log.isTraceEnabled())
 					log.trace("cannot find " + dest + " in the routing table, \nrouting table=\n"
-							+ dumpRoutingTable());
+						+ dumpRoutingTable());
 				return;
 			}
 			if (handler.output == null) {
@@ -578,7 +578,7 @@ public class RMGossipRouter {
 				Map<Address, ConnectionHandler> map = routingTable.get(group);
 				if (map != null && !map.isEmpty()) {
 					for (Iterator<Entry<Address, ConnectionHandler>> i = map.entrySet().iterator(); i
-							.hasNext();) {
+						.hasNext();) {
 						ConnectionHandler entry = i.next().getValue();
 						DataOutputStream stream = entry.output;
 						try {
@@ -710,8 +710,8 @@ public class RMGossipRouter {
 							for (Address logical_addr : map.keySet()) {
 								physical_addrs = address_mappings.get(logical_addr);
 								PingData rsp = new PingData(logical_addr, null, true, UUID.get(logical_addr),
-										physical_addrs != null ? new ArrayList<PhysicalAddress>(
-												physical_addrs) : null);
+									physical_addrs != null ? new ArrayList<PhysicalAddress>(physical_addrs)
+										: null);
 								mbrs.add(rsp);
 							}
 						}
@@ -815,7 +815,7 @@ public class RMGossipRouter {
 					}
 				} else {
 					for (Map.Entry<String, ConcurrentMap<Address, ConnectionHandler>> entry : routingTable
-							.entrySet()) {
+						.entrySet()) {
 						map = entry.getValue();
 						if (map != null) {
 							oldConnectionH = map.get(addr);
@@ -826,7 +826,7 @@ public class RMGossipRouter {
 					isOldExists = true;
 					if (log.isDebugEnabled()) {
 						log.debug("Found old connection[" + oldConnectionH + "] for addr[" + addr
-								+ "]. Closing old connection ...");
+							+ "]. Closing old connection ...");
 					}
 					oldConnectionH.close();
 				} else {

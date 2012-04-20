@@ -13,7 +13,8 @@ public class IPAddressServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 8754107147296227757L;
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+		IOException {
 		response.setContentType("text/plain");
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.getWriter().write(request.getRemoteAddr());

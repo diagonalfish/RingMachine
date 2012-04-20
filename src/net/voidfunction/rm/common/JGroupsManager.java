@@ -20,7 +20,7 @@ import org.jgroups.util.Util;
 public class JGroupsManager {
 
 	private Node node;
-	
+
 	private JChannel jch;
 	private int publicPort; // Primary port our JGroups system listens on for
 							// other peer communication
@@ -32,7 +32,8 @@ public class JGroupsManager {
 
 	private ArrayList<JGroupsListener> listeners; // Registered listeners
 
-	public JGroupsManager(Node node, int publicPort, String publicIP, String gossipHost, int gossipPort, String password) {
+	public JGroupsManager(Node node, int publicPort, String publicIP, String gossipHost, int gossipPort,
+			String password) {
 		this.node = node;
 		this.publicPort = publicPort;
 		this.publicIP = publicIP;
@@ -86,7 +87,8 @@ public class JGroupsManager {
 
 	/**
 	 * Initialize the channel and connect to the cluster.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	public void connect() throws Exception {
 		reset();
@@ -105,7 +107,7 @@ public class JGroupsManager {
 	 * Send a packet to all members of the cluster.
 	 * 
 	 * @param packet
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void sendMessage(RMPacket packet) throws Exception {
 		Message message = new Message();
@@ -118,7 +120,7 @@ public class JGroupsManager {
 	 * 
 	 * @param packet
 	 * @param dest
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void sendMessage(RMPacket packet, Address dest) throws Exception {
 		Message message = new Message(dest);
@@ -141,13 +143,13 @@ public class JGroupsManager {
 
 		// Convert public IP String to InetAddress
 		InetAddress publicIPAddr = InetAddress.getByName(publicIP);
-		
+
 		// Initialize protocol stack
 		ProtocolStack stack = new ProtocolStack();
 		jch.setProtocolStack(stack);
 		ArrayList<InetSocketAddress> initial_hosts = new ArrayList<InetSocketAddress>();
 		initial_hosts.add(gossipRouter);
-		
+
 		AUTH authProt = new AUTH();
 		MD5Token token = new MD5Token(password, "SHA");
 		authProt.setAuthToken(token);
@@ -163,36 +165,38 @@ public class JGroupsManager {
 				.addProtocol(new TCPGOSSIP().setValue("initial_hosts", initial_hosts))
 				.addProtocol(new MERGE2())
 				.addProtocol(new FD().setValue("timeout", 5000).setValue("max_tries", 2))
-				/* .addProtocol(new FD_SOCK().setValue("external_addr", publicIP)) */
+				/*
+				 * .addProtocol(new FD_SOCK().setValue("external_addr",
+				 * publicIP))
+				 */
 				.addProtocol(new VERIFY_SUSPECT())
-				/*.addProtocol(
-						new ENCRYPT().setValue("encrypt_entire_message", false).setValue("symInit", 128)
-								.setValue("symAlgorithm", "AES/ECB/PKCS5Padding").setValue("asymInit", 512)
-								.setValue("asymAlgorithm", "RSA")) */
+				/*
+				 * .addProtocol( new
+				 * ENCRYPT().setValue("encrypt_entire_message",
+				 * false).setValue("symInit", 128) .setValue("symAlgorithm",
+				 * "AES/ECB/PKCS5Padding").setValue("asymInit", 512)
+				 * .setValue("asymAlgorithm", "RSA"))
+				 */
 				.addProtocol(new NAKACK2().setValue("use_mcast_xmit", false).setValue("discard_delivered_msgs", true))
-				//.addProtocol(new UNICAST())
+				// .addProtocol(new UNICAST())
 				.addProtocol(new STABLE())
 				.addProtocol(new GMS().setValue("print_local_addr", true).setValue("view_bundling", true))
-				.addProtocol(authProt)
-				.addProtocol(new UFC())
-				.addProtocol(new MFC())
-				.addProtocol(new FRAG2())
+				.addProtocol(authProt).addProtocol(new UFC()).addProtocol(new MFC()).addProtocol(new FRAG2())
 				.addProtocol(new COMPRESS());
-		
+
 		stack.init();
 	}
 
 	private void send(Message message) throws Exception {
-		/* TODO: is there a better way to tell whether we're connected? Maybe when we get MASTER_INFO? ... sigh 
-		if (jch.isConnected()) {
-				jch.send(message);
-		} else {
-			throw new Exception("Tried to send message while disconnected!");
-		}
-		*/
+		/*
+		 * TODO: is there a better way to tell whether we're connected? Maybe
+		 * when we get MASTER_INFO? ... sigh if (jch.isConnected()) {
+		 * jch.send(message); } else { throw new
+		 * Exception("Tried to send message while disconnected!"); }
+		 */
 		jch.send(message);
 	}
-	
+
 	public boolean isConnected() {
 		return jch.isConnected();
 	}
@@ -223,7 +227,9 @@ public class JGroupsManager {
 				}
 			} catch (Exception e) {
 				// Warn on the console
-				node.getLog().warn("Received invalid packet message from peer with address " + message.getSrc().toString());
+				node.getLog().warn(
+						"Received invalid packet message from peer with address "
+								+ message.getSrc().toString());
 			}
 		}
 

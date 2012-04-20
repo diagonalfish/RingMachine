@@ -21,7 +21,7 @@ public class FileUtils {
 		FileInputStream in = new FileInputStream(file);
 		return sha256Hash(in);
 	}
-	
+
 	public static byte[] sha256Hash(InputStream in) throws IOException {
 		MessageDigest sha256 = null;
 		try {
@@ -33,7 +33,8 @@ public class FileUtils {
 		DigestInputStream din = new DigestInputStream(in, sha256);
 		din.on(true);
 		byte[] buffer = new byte[8192];
-		while (din.read(buffer) != -1) // Read everything into the digest input
+		while (din.read(buffer) != -1)
+			// Read everything into the digest input
 			;
 
 		return sha256.digest();

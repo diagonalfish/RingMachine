@@ -8,9 +8,9 @@ import java.util.Properties;
 public class RMConfig extends Properties {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private Node node;
-	
+
 	public RMConfig(Node node) {
 		this.node = node;
 	}

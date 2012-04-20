@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class RMLog {
-	
+
 	private NodeConsole console;
 
 	public void raw(String message) {
@@ -38,13 +38,13 @@ public class RMLog {
 		if (type != null)
 			builder.append("[" + type + "] ");
 		builder.append(message);
-		
+
 		if (console == null)
 			System.out.println(builder.toString());
 		else
 			console.printLine(builder.toString());
 	}
-	
+
 	public void setConsole(NodeConsole console) {
 		this.console = console;
 	}

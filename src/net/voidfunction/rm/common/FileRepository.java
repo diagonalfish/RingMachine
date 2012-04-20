@@ -8,8 +8,8 @@ import java.util.HashMap;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Stores a list of files and their data. Provies a means to access file information
- * and data on demand.
+ * Stores a list of files and their data. Provies a means to access file
+ * information and data on demand.
  */
 public class FileRepository {
 
@@ -23,10 +23,11 @@ public class FileRepository {
 	}
 
 	/* Loading and saving file hash table */
-	
+
 	/**
-	 * Loads the files.dat file from this FileRepository's directory. If it exists, it
-	 * should contain a HashMap of RMFiles.
+	 * Loads the files.dat file from this FileRepository's directory. If it
+	 * exists, it should contain a HashMap of RMFiles.
+	 * 
 	 * @throws IOException
 	 */
 	@SuppressWarnings("unchecked")
@@ -34,41 +35,49 @@ public class FileRepository {
 		checkDirectory();
 		String fileDatName = getDataFileName();
 		try {
-			ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(fileDatName)));
+			ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
+				fileDatName)));
 			Object inObj = in.readObject();
 			fileObjects = (HashMap<String, RMFile>)inObj;
 			in.close();
 		} catch (FileNotFoundException fnfe) {
 			// It's ok if it does not exist.
 			fileObjects = new HashMap<String, RMFile>();
-			node.getLog().info("File repository list (" + fileDatName + ") not found. Starting with empty list.");
+			node.getLog().info(
+				"File repository list (" + fileDatName + ") not found. Starting with empty list.");
 		} catch (ClassNotFoundException e) {
 			// Very unlikely, so we default to empty list
-			node.getLog().warn("Encountered error loading file  list (" + fileDatName + "). Starting with empty list.");
+			node.getLog().warn(
+				"Encountered error loading file  list (" + fileDatName + "). Starting with empty list.");
 			fileObjects = new HashMap<String, RMFile>();
 		}
 		node.getLog().info("File repository (" + fileObjects.size() + " files) loaded.");
 	}
-	
+
 	/**
-	 * Saves this repository's HashMap of RMFiles to files.dat in the repository's directory.
+	 * Saves this repository's HashMap of RMFiles to files.dat in the
+	 * repository's directory.
+	 * 
 	 * @throws IOException
 	 */
 	public void saveFiles() {
 		try {
 			String fileDatName = getFileName("files.dat");
-			ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileDatName)));
+			ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(
+				fileDatName)));
 			out.writeObject(fileObjects);
 			out.close();
 		} catch (IOException e) {
-			node.getLog().severe("Could not save file database: " + e.getClass().toString() + " - " + e.getMessage());
+			node.getLog().severe(
+				"Could not save file database: " + e.getClass().toString() + " - " + e.getMessage());
 		}
 	}
-	
+
 	/* Functions for adding to/removing from file hash table */
-	
+
 	/**
 	 * Adds a new file to the list of files we know about.
+	 * 
 	 * @param file
 	 */
 	public synchronized void addFile(RMFile file) {
@@ -80,26 +89,30 @@ public class FileRepository {
 
 	/**
 	 * Removes a file from the list of files we know about.
+	 * 
 	 * @param id
 	 */
 	public synchronized void removeFile(String id) {
 		RMFile file = getFileById(id);
-		if (file == null) return;
+		if (file == null)
+			return;
 		fileObjects.remove(file);
 		saveFiles();
 	}
 
 	/**
 	 * Returns an RMFile for a given file ID, or null if it doesn't exist.
+	 * 
 	 * @param id
 	 * @return
 	 */
 	public synchronized RMFile getFileById(String id) {
 		return fileObjects.get(id);
 	}
-	
+
 	/**
 	 * Check whether a file exists with the given id.
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -109,21 +122,23 @@ public class FileRepository {
 
 	/**
 	 * Return a list of all files we know about.
+	 * 
 	 * @return
 	 */
 	public synchronized Collection<RMFile> getFileObjects() {
 		return fileObjects.values();
 	}
-	
+
 	public synchronized int getFileCount() {
 		return fileObjects.size();
 	}
-	
+
 	/* Functions for manipulating file data */
-	
+
 	/**
-	 * Checks whether the FileRepository's save directory exists and is writable. Will
-	 * attempts to create the directory if it doesn't exist.
+	 * Checks whether the FileRepository's save directory exists and is
+	 * writable. Will attempts to create the directory if it doesn't exist.
+	 * 
 	 * @throws IOException
 	 */
 	public synchronized void checkDirectory() throws IOException {
@@ -139,6 +154,7 @@ public class FileRepository {
 
 	/**
 	 * Returns whether this repository knows about a file with the given ID.
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -147,8 +163,9 @@ public class FileRepository {
 	}
 
 	/**
-	 * Returns an InputStream of the data for the given file ID, or null if the file
-	 * does not exist.
+	 * Returns an InputStream of the data for the given file ID, or null if the
+	 * file does not exist.
+	 * 
 	 * @param id
 	 * @return
 	 * @throws IOException
@@ -163,15 +180,17 @@ public class FileRepository {
 
 	/**
 	 * Saves the data for a given file ID to the repository's save folder.
+	 * 
 	 * @param data
 	 * @param id
 	 * @throws IOException
 	 */
 	public void storeFileData(InputStream data, String id) throws IOException {
 		RMFile file = getFileById(id);
-		
-		if (file == null) throw new IOException("File with id " + id + " does not exist.");
-		
+
+		if (file == null)
+			throw new IOException("File with id " + id + " does not exist.");
+
 		File fileObj = new File(getFileName(id));
 		try {
 			checkDirectory();
@@ -194,15 +213,16 @@ public class FileRepository {
 	}
 
 	/**
-	 * Deletes any data we have stored for the file with the given ID. Must be called
-	 * separately from removeFile().
+	 * Deletes any data we have stored for the file with the given ID. Must be
+	 * called separately from removeFile().
+	 * 
 	 * @param id
 	 * @throws IOException
 	 */
 	public synchronized void deleteFileData(String id) throws IOException {
 		if (getFileById(id) == null)
 			return;
-		
+
 		checkDirectory();
 		File fileObj = new File(getFileName(id));
 		if (!fileObj.delete())
@@ -212,10 +232,10 @@ public class FileRepository {
 	public String getDataFileName() {
 		return getFileName("files.dat");
 	}
-	
+
 	// Util function for getting the local storage filename for a given file
 	private String getFileName(String id) {
 		return directory + "/" + id;
 	}
-	
+
 }
