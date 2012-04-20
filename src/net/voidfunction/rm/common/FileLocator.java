@@ -11,10 +11,11 @@ public class FileLocator {
 	 * to instead of serving the file ourselves, or null if we should not
 	 * redirect.
 	 * 
-	 * @param fileID
+	 * @param fileId
+	 * @param fileName
 	 * @return
 	 */
-	public String locateURL(String fileID) {
+	public String locateURL(String fileId, String fileName) {
 		return null;
 	}
 

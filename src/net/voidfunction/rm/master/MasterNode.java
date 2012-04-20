@@ -123,7 +123,7 @@ public class MasterNode extends Node {
 
 		// Servlets
 		httpserver.addServlet("/admin/*", new AdminServlet(this, "admintemplates/"));
-		FileServlet fileservlet = new FileServlet(this, new FileLocator(), repManager);
+		FileServlet fileservlet = new FileServlet(this, new MasterFileLocator(this), repManager);
 		httpserver.addServlet("/files/*", fileservlet);
 
 		// Run web server

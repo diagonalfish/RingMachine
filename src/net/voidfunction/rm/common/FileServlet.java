@@ -34,7 +34,7 @@ public class FileServlet extends HttpServlet {
 			return;
 		}
 		String fileID = urlParts[1];
-		String fileName = "No filename";
+		String fileName = "";
 		if (urlParts.length > 2)
 			fileName = urlParts[2];
 
@@ -43,7 +43,7 @@ public class FileServlet extends HttpServlet {
 
 		String redirURL = (String)request.getSession().getAttribute("fileURL-" + fileID);
 		if (redirURL == null)
-			redirURL = locator.locateURL(fileID);
+			redirURL = locator.locateURL(fileID, fileName);
 		if (redirURL != null) {
 			node.getLog().debug("Found redirect URL: " + redirURL);
 			request.getSession().setAttribute("fileURL-" + fileID, redirURL);
