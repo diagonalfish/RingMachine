@@ -26,6 +26,9 @@ public class WorkerPacketHandler {
 		case GET_FILE:
 			handle_GET_FILE(source, packet);
 			break;
+		case DELETE_FILE:
+			handle_DELETE_FILE(source, packet);
+			break;
 		default:
 			node.getLog().warn(
 				"Received unusable packet of type " + type.name() + " from node " + source + ".");
@@ -74,4 +77,19 @@ public class WorkerPacketHandler {
 		fetcher.start();
 	}
 
+	private void handle_DELETE_FILE(Address source, RMPacket packet) {
+		node.getLog().info("Received DELETE_FILE from node " + source + ".");
+		String fileId = packet.getString("fileid");
+		
+		if (node.getFileRepository().checkFile(fileId)) {
+			node.getLog().info("Deleting file " + fileId + " by request of master node.");
+			try {
+				node.getFileRepository().removeFile(fileId);
+			} catch (IOException e) {
+				// Oops :(
+				node.getLog().severe("Failed to delete file " + fileId + ": " + e.getMessage());
+			}
+		}
+	}
+	
 }

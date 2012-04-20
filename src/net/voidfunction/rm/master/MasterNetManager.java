@@ -79,6 +79,13 @@ public class MasterNetManager extends JGroupsListener {
 		sendPacket(target, packet);
 	}
 	
+	public void packetSendDeleteFile(String fileId) {
+		node.getLog().info("Broadcasting DELETE_FILE");
+		RMPacket packet = new RMPacket(RMPacket.Type.DELETE_FILE);
+		packet.setDataVal("fileid", fileId);
+		broadcastPacket(packet);
+	}
+	
 	private void sendPacket(Address target, RMPacket packet) {
 		try {
 			jgm.sendMessage(packet, target);
@@ -86,6 +93,16 @@ public class MasterNetManager extends JGroupsListener {
 			node.getLog().severe(
 				"Could not send " + packet.getType().toString() + " to " + target + ": " + e.getClass().getName() + " "
 				+ e.getMessage());
+		}
+	}
+	
+	private void broadcastPacket(RMPacket packet) {
+		try {
+			jgm.sendMessage(packet);
+		} catch (Exception e) {
+			node.getLog().severe(
+				"Could not broadcast " + packet.getType().toString() + ": " + e.getClass().getName() + " "
+					+ e.getMessage());
 		}
 	}
 

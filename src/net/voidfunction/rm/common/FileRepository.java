@@ -1,10 +1,7 @@
 package net.voidfunction.rm.common;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 
@@ -103,7 +100,7 @@ public class FileRepository {
 
 		deleteFileData(id);
 		
-		fileObjects.remove(file);
+		fileObjects.remove(id);
 		saveFiles();
 	}
 
@@ -114,7 +111,7 @@ public class FileRepository {
 	 */
 	public synchronized int removeAllExcept(List<String> ids) throws IOException {
 		int counter = 0;
-		for (String id : fileObjects.keySet()) {
+		for (String id : new ArrayList<String>(fileObjects.keySet())) {
 			if (!ids.contains(id)) {
 				removeFile(id);
 				counter++;

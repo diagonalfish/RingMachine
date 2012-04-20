@@ -229,7 +229,8 @@ public class JGroupsManager {
 				// Warn on the console
 				node.getLog().warn(
 						"Received invalid packet message from peer with address "
-								+ message.getSrc().toString());
+								+ message.getSrc().toString() + ": " + message.getObject().toString());
+				e.printStackTrace();
 			}
 		}
 

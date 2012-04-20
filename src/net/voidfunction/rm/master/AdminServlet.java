@@ -42,6 +42,11 @@ public class AdminServlet extends HttpServlet {
 			response.getWriter().print(pageIndex(request));
 		else if (page.equals("upload"))
 			response.getWriter().print(pageUpload());
+		else if (page.equals("delete")) {
+			pageDelete(request);
+			response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+			response.setHeader("Location", ".");
+		}
 
 	}
 
@@ -64,6 +69,8 @@ public class AdminServlet extends HttpServlet {
 			tpl.assign("FILESIZE", "");
 			tpl.assign("DOWNURL", "");
 			tpl.assign("DOWNTXT", "");
+			tpl.assign("DELETEURL", "");
+			tpl.assign("DELETETXT", "");
 			tpl.parse("main.file");
 		}
 		for (RMFile file : files) {
@@ -75,6 +82,8 @@ public class AdminServlet extends HttpServlet {
 				+ node.getConfig().getInt("port.http", 8080) + "/files/" + file.getId() + "/"
 				+ file.getName());
 			tpl.assign("DOWNTXT", "Download");
+			tpl.assign("DELETEURL", "?page=delete&id=" + file.getId());
+			tpl.assign("DELETETXT", "Delete");
 			tpl.parse("main.file");
 		}
 
@@ -87,6 +96,27 @@ public class AdminServlet extends HttpServlet {
 
 		tpl.parse("main");
 		return tpl.out();
+	}
+	
+	private void pageDelete(HttpServletRequest request) throws IOException {
+		String id = request.getParameter("id");
+		if (id == null)
+			return;
+		
+		// Delete file locally
+		if (!node.getFileRepository().checkFile(id))
+			return;
+		
+		node.getLog().info("Deleting file " + id + " (via web).");
+		
+		try {
+		node.getFileRepository().removeFile(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Now pass that along to all the nodes
+		node.getNetManager().packetSendDeleteFile(id);
 	}
 
 	/* File upload */
