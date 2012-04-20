@@ -17,10 +17,12 @@ public class FileServlet extends HttpServlet {
 	
 	private Node node;
 	private FileLocator locator;
+	private FileDownloadListener dlListener;
 	
-	public FileServlet(Node node, FileLocator locator) {
+	public FileServlet(Node node, FileLocator locator, FileDownloadListener dlListener) {
 		this.node = node;
 		this.locator = locator;
+		this.dlListener = dlListener;
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -56,7 +58,7 @@ public class FileServlet extends HttpServlet {
 			RMFile file = node.getFileRepository().getFileById(fileID);
 			if (file == null) {
 				// File not found.
-				logOut += "Not Found]";
+				logOut += "Not found]";
 				node.getLog().info(logOut);
 				
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -64,7 +66,7 @@ public class FileServlet extends HttpServlet {
 			}
 			else {
 				// File found
-				logOut += "Found]";
+				logOut += "Found locally]";
 				node.getLog().info(logOut);
 				
 				// Caching magic - we can safely assume the file won't change for now
@@ -78,6 +80,10 @@ public class FileServlet extends HttpServlet {
 					response.setHeader("Last-Modified", ifModifiedSince);
 				}
 				else {
+					// Let the download listener know
+					if (dlListener != null) dlListener.fileDownloaded(file);
+					
+					// Send the HTTP response and file data
 					response.setStatus(HttpServletResponse.SC_OK);
 					response.setHeader("Expires", HTTPUtils.getServerTime(3600));
 					response.setHeader("Cache-Control", "max-age=3600");

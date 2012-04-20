@@ -107,7 +107,6 @@ public class MasterNode extends Node {
 		netManager = new MasterNetManager(this);
 		
 		// Start JGroups
-		
 		try {
 			jgm.connect();
 		} catch (Exception e) {
@@ -119,13 +118,17 @@ public class MasterNode extends Node {
 		getLog().info("Starting replication manager.");
 		repManager = new ReplicationManager(this);
 		
-		// Start web server
+		// Create web server
 		int httpPort = config.getInt("port.http", 8080);
 		getLog().info("Starting HTTP server on port " + httpPort + "...");
 		RMHTTPServer httpserver = new RMHTTPServer(httpPort);
+		
+		// Servlets
 		httpserver.addServlet("/admin/*", new AdminServlet(this, "admintemplates/"));
-		FileServlet fileservlet = new FileServlet(this, new FileLocator());
+		FileServlet fileservlet = new FileServlet(this, new FileLocator(), repManager);
 		httpserver.addServlet("/files/*", fileservlet);
+		
+		// Run web server
 		try {
 			httpserver.run();
 		} catch (Exception e) {
