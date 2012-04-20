@@ -17,17 +17,8 @@ public class RMFile implements Serializable {
 	private long size;
 	private byte[] sha256hash;
 
-	public RMFile(String name, String id, String mimetype, long size, byte[] hash) {
-		this.name = name;
-		this.id = id;
-		this.mimetype = mimetype;
-		this.size = size;
-		this.sha256hash = hash;
-	}
-
 	/**
-	 * Constructor that generates its own UUID for id (appropriate for new file
-	 * objects)
+	 * Constructor
 	 * 
 	 * @param name
 	 * @param mimetype
@@ -85,10 +76,6 @@ public class RMFile implements Serializable {
 	public boolean equals(Object o) {
 		RMFile otherfile = (RMFile)o;
 		return otherfile.id.equals(this.id);
-	}
-
-	public RMFile cloneToID(String newID) {
-		return new RMFile(name, newID, mimetype, size, sha256hash);
 	}
 
 }
