@@ -1,6 +1,8 @@
 package net.voidfunction.rm.worker;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.jgroups.Address;
 
@@ -86,6 +88,26 @@ public class WorkerNode extends Node {
 				.fatal("Failed to start JGroups! " + e.getClass().getName() + " - " + e.getMessage());
 			System.exit(1);
 		}
+		// Set a timer to check the master node's file list every so often
+		Timer filesCheckTimer = new Timer();
+		filesCheckTimer.schedule(new MyFilesTask(), 180000, 180000); // 3 minutes
+		
+		// Create web server
+		int httpPort = config.getInt("port.http", 8080);
+		getLog().info("Starting HTTP server on port " + httpPort + "...");
+		RMHTTPServer httpserver = new RMHTTPServer(httpPort);
+		
+		// File servlet
+		httpserver.addServlet("/files/*", new FileServlet(this, new FileLocator(), null));
+		
+		// Run web server
+		try {
+			httpserver.run();
+		} catch (Exception e) {
+			getLog().fatal("Failed to start HTTP server! " + e.getClass().getName() + " - " + e.getMessage());
+			System.exit(1);
+		}
+		getLog().info("HTTP server started.");
 
 		// Console
 		NodeConsole console;
@@ -113,6 +135,14 @@ public class WorkerNode extends Node {
 
 	public int getMasterPort() {
 		return masterPort;
+	}
+	
+	// Check with the master node periodically re: file list
+	private class MyFilesTask extends TimerTask {
+		public void run() {
+			if (masterAddr != null && getFileRepository().getFileCount() > 0)
+				getNetManager().packetSendMyFiles(masterAddr);
+		}
 	}
 
 }

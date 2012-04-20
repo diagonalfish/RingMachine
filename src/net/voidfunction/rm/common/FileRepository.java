@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
@@ -92,14 +93,33 @@ public class FileRepository {
 	 * 
 	 * @param id
 	 */
-	public synchronized void removeFile(String id) {
+	public synchronized void removeFile(String id) throws IOException {
 		RMFile file = getFileById(id);
 		if (file == null)
 			return;
+
+		deleteFileData(id);
+		
 		fileObjects.remove(file);
 		saveFiles();
 	}
 
+	/**
+	 * Remove all files whose ids are not contained in the given
+	 * list of Strings.
+	 * @param ids
+	 */
+	public synchronized int removeAllExcept(List<String> ids) throws IOException {
+		int counter = 0;
+		for (String id : fileObjects.keySet()) {
+			if (!ids.contains(id)) {
+				removeFile(id);
+				counter++;
+			}
+		}
+		return counter;
+	}
+	
 	/**
 	 * Returns an RMFile for a given file ID, or null if it doesn't exist.
 	 * 
@@ -225,8 +245,7 @@ public class FileRepository {
 
 		checkDirectory();
 		File fileObj = new File(getFileName(id));
-		if (!fileObj.delete())
-			throw new IOException("Could not delete file with id '" + id + "'");
+		fileObj.delete();
 	}
 
 	public String getDataFileName() {

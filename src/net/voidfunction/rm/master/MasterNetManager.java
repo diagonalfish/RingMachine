@@ -1,5 +1,6 @@
 package net.voidfunction.rm.master;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jgroups.Address;
@@ -52,14 +53,25 @@ public class MasterNetManager extends JGroupsListener {
 
 	public void packetSendMasterInfo(Address target) {
 		node.getLog().info("Sending MASTER_INFO to new worker " + target);
-		RMPacket packetMaster = new RMPacket(RMPacket.Type.MASTER_INFO);
-		packetMaster.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
+		RMPacket packet = new RMPacket(RMPacket.Type.MASTER_INFO);
+		packet.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
+		sendPacket(target, packet);
+	}
+	
+	public void packetSendYourFiles(Address target, ArrayList<String> fileIds) {
+		node.getLog().info("Sending YOUR_FILES to node " + target);
+		RMPacket packet = new RMPacket(RMPacket.Type.YOUR_FILES);
+		packet.setDataVal("files", fileIds);
+		sendPacket(target, packet);
+	}
+	
+	private void sendPacket(Address target, RMPacket packet) {
 		try {
-			jgm.sendMessage(packetMaster, target);
+			jgm.sendMessage(packet, target);
 		} catch (Exception e) {
 			node.getLog().severe(
-				"Could not send MASTER_INFO to " + target + ": " + e.getClass().getName() + " "
-					+ e.getMessage());
+				"Could not send " + packet.getType().toString() + " to " + target + ": " + e.getClass().getName() + " "
+				+ e.getMessage());
 		}
 	}
 

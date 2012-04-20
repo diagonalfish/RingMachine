@@ -1,5 +1,8 @@
 package net.voidfunction.rm.worker;
 
+import java.io.IOException;
+import java.util.List;
+
 import net.voidfunction.rm.common.RMPacket;
 
 import org.jgroups.Address;
@@ -17,6 +20,8 @@ public class WorkerPacketHandler {
 		case MASTER_INFO:
 			handle_MASTER_INFO(source, packet);
 			break;
+		case YOUR_FILES:
+			handle_YOUR_FILES(source, packet);
 		default:
 			node.getLog().warn(
 				"Received unusable packet of type " + type.name() + " from node " + source + ".");
@@ -33,7 +38,28 @@ public class WorkerPacketHandler {
 		// Inform the Master node about our HTTP ip/port
 		node.getNetManager().packetSendWorkerInfo(source);
 
-		// TODO: Send MY_FILES packet
+		// Send MY_FILES packet to master node
+		if (node.getFileRepository().getFileCount() > 0)
+			node.getNetManager().packetSendMyFiles(source);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void handle_YOUR_FILES(Address source, RMPacket packet) {
+		node.getLog().info("Received YOUR_FILES from node " + source + ".");
+		if (!source.equals(node.getMasterAddr())) {
+			node.getLog().warn("Received YOUR_FILES from a non-master node!");
+			return;
+		}
+		
+		List<Object> tempKeepFiles = packet.getList("files");
+		if (tempKeepFiles == null) return;
+		List<String> keepFiles = (List<String>)(List)tempKeepFiles; // Type erasure...
+		try {
+			int deleted = node.getFileRepository().removeAllExcept(keepFiles);
+			node.getLog().info("Removed " + deleted + " unneeded files.");
+		} catch (IOException e) {
+			node.getLog().warn("Error removing file: " + e.getMessage());
+		}
 	}
 
 }

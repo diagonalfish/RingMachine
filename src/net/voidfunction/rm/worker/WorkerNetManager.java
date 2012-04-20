@@ -1,5 +1,6 @@
 package net.voidfunction.rm.worker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jgroups.Address;
@@ -51,15 +52,30 @@ public class WorkerNetManager extends JGroupsListener {
 
 	public void packetSendWorkerInfo(Address target) {
 		node.getLog().info("Sending WORKER_INFO to master node.");
-		RMPacket packetWorker = new RMPacket(RMPacket.Type.WORKER_INFO);
-		packetWorker.setDataVal("httphost", node.getPublicIP());
-		packetWorker.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
+		RMPacket packet = new RMPacket(RMPacket.Type.WORKER_INFO);
+		packet.setDataVal("httphost", node.getPublicIP());
+		packet.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
+		sendPacket(target, packet);
+	}
+
+	public void packetSendMyFiles(Address target) {
+		node.getLog().info("Sending MY_FILES to master node.");
+		ArrayList<String> fileIds = new ArrayList<String>();
+		RMPacket packet = new RMPacket(RMPacket.Type.MY_FILES);
+		for (RMFile file : node.getFileRepository().getFileObjects()) {
+			fileIds.add(file.getId());
+		}
+		packet.setDataVal("files", fileIds);
+		sendPacket(target, packet);
+	}
+	
+	private void sendPacket(Address target, RMPacket packet) {
 		try {
-			jgm.sendMessage(packetWorker, target);
+			jgm.sendMessage(packet, target);
 		} catch (Exception e) {
 			node.getLog().severe(
-				"Could not send WORKER_INFO to " + target + ": " + e.getClass().getName() + " "
-					+ e.getMessage());
+				"Could not send " + packet.getType().toString() + " to " + target + ": " + e.getClass().getName() + " "
+				+ e.getMessage());
 		}
 	}
 
