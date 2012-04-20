@@ -1,14 +1,9 @@
 package net.voidfunction.rm.common;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.FileNameMap;
 import java.net.URLConnection;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 
 /**
  * Handy functions for files

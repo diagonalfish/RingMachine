@@ -1,12 +1,8 @@
 package net.voidfunction.rm.master;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import net.voidfunction.rm.common.FileRepository;
-import net.voidfunction.rm.common.RMFile;
+import net.voidfunction.rm.common.*;
 
 import org.jgroups.Address;
 

@@ -4,8 +4,7 @@ import java.util.*;
 
 import org.jgroups.Address;
 
-import net.voidfunction.rm.common.FileDownloadListener;
-import net.voidfunction.rm.common.RMFile;
+import net.voidfunction.rm.common.*;
 
 public class ReplicationManager implements FileDownloadListener {
 	

@@ -4,11 +4,7 @@ import java.io.IOException;
 
 import org.jgroups.Address;
 
-import net.voidfunction.rm.common.IPAddressClient;
-import net.voidfunction.rm.common.JGroupsManager;
-import net.voidfunction.rm.common.Node;
-import net.voidfunction.rm.common.NodeConsole;
-import net.voidfunction.rm.common.NodeConsoleHandler;
+import net.voidfunction.rm.common.*;
 
 /**
  * Main class for RingMachine worker node.

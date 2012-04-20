@@ -4,9 +4,7 @@ import java.util.List;
 
 import org.jgroups.Address;
 
-import net.voidfunction.rm.common.JGroupsListener;
-import net.voidfunction.rm.common.JGroupsManager;
-import net.voidfunction.rm.common.RMPacket;
+import net.voidfunction.rm.common.*;
 
 public class WorkerNetManager extends JGroupsListener {
 

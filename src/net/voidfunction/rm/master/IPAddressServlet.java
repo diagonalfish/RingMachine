@@ -3,9 +3,7 @@ package net.voidfunction.rm.master;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
 /**
  * Simple servlet that returns IP address of connecting client. Used by

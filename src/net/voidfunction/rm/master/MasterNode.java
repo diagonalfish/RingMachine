@@ -2,14 +2,7 @@ package net.voidfunction.rm.master;
 
 import java.io.IOException;
 
-import net.voidfunction.rm.common.FileLocator;
-import net.voidfunction.rm.common.FileServlet;
-import net.voidfunction.rm.common.IPAddressClient;
-import net.voidfunction.rm.common.JGroupsManager;
-import net.voidfunction.rm.common.Node;
-import net.voidfunction.rm.common.NodeConsole;
-import net.voidfunction.rm.common.NodeConsoleHandler;
-import net.voidfunction.rm.common.RMHTTPServer;
+import net.voidfunction.rm.common.*;
 
 /**
  * Main class for RingMachine master node.

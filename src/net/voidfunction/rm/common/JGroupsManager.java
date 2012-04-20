@@ -5,13 +5,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jgroups.Address;
-import org.jgroups.Channel;
-import org.jgroups.ChannelListener;
-import org.jgroups.JChannel;
-import org.jgroups.Message;
-import org.jgroups.ReceiverAdapter;
-import org.jgroups.View;
+import org.jgroups.*;
 import org.jgroups.auth.MD5Token;
 import org.jgroups.protocols.*;
 import org.jgroups.protocols.pbcast.*;
