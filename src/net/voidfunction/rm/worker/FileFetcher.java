@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.worker;
 
 import java.io.IOException;
@@ -8,15 +40,21 @@ import org.jgroups.Address;
 
 import net.voidfunction.rm.common.*;
 
+/**
+ * Threaded HTTP client which retrieves a file from the master node
+ * and adds it to our FileRepository upon success.
+ */
 public class FileFetcher extends Thread {
 
+	// We actively try to prevent multiple fetchers being active for
+	// a given file ID
 	private static HashMap<String, FileFetcher> activeFetchers;
 	
 	static {
 		activeFetchers = new HashMap<String, FileFetcher>();
 	}
 	
-	public static boolean fetcherStart(String fileId, FileFetcher fetcher) {
+	private static boolean fetcherStart(String fileId, FileFetcher fetcher) {
 		synchronized(activeFetchers) {
 			if (activeFetchers.containsKey(fileId))
 				return false;
@@ -25,7 +63,7 @@ public class FileFetcher extends Thread {
 		}
 	}
 	
-	public static void fetcherEnd(String fileId) {
+	private static void fetcherEnd(String fileId) {
 		synchronized(activeFetchers) {
 			activeFetchers.remove(fileId);
 		}
@@ -34,6 +72,12 @@ public class FileFetcher extends Thread {
 	private WorkerNode node;
 	private RMFile file;
 	
+	/**
+	 * Create a file fetcher that will retrieve the given file from the master node
+	 * of the network.
+	 * @param node
+	 * @param file
+	 */
 	public FileFetcher(WorkerNode node, RMFile file) {
 		this.node = node;
 		this.file = file;

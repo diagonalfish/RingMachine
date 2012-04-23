@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.worker;
 
 import java.io.IOException;
@@ -7,6 +39,11 @@ import net.voidfunction.rm.common.*;
 
 import org.jgroups.Address;
 
+/**
+ * Handles incoming packets for the worker node and performs related tasks.
+ * 
+ * See RMPacket for details about packet types.
+ */
 public class WorkerPacketHandler {
 	private WorkerNode node;
 
@@ -51,12 +88,14 @@ public class WorkerPacketHandler {
 	}
 	
 	private void handle_YOUR_FILES(Address source, RMPacket packet) {
+		// Received a filtered list of files back from the master node.
 		node.getLog().info("Received YOUR_FILES from node " + source + ".");
 		if (!source.equals(node.getMasterAddr())) {
 			node.getLog().warn("Received YOUR_FILES from a non-master node!");
 			return;
 		}
 		
+		// Keep only the files that are on this list, delete the rest
 		List<Object> keepFiles = packet.getList("files");
 		if (keepFiles == null) return;
 		try {
@@ -68,6 +107,7 @@ public class WorkerPacketHandler {
 	}
 	
 	private void handle_GET_FILE(Address source, RMPacket packet) {
+		// Master node is asking us to fetch a file and add it to our repository
 		node.getLog().info("Received GET_FILE from node " + source + ".");
 		RMFile file = packet.getFile("file");
 		
@@ -82,6 +122,7 @@ public class WorkerPacketHandler {
 	}
 
 	private void handle_DELETE_FILE(Address source, RMPacket packet) {
+		// Master node is instructing us to immediately delete a file from our repository.
 		node.getLog().info("Received DELETE_FILE from node " + source + ".");
 		String fileId = packet.getString("fileid");
 		

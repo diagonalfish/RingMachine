@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.common;
 
 import java.net.InetAddress;
@@ -28,12 +60,11 @@ public class JGroupsManager {
 	private InetSocketAddress gossipRouter; // Address of GossipRouter we try to
 											// get peers from
 	private View curView; // List of other peers we should know about
-	private String password;
+	private String password; // Password to access the cluster
 
 	private ArrayList<JGroupsListener> listeners; // Registered listeners
 
-	public JGroupsManager(Node node, int publicPort, String publicIP, String gossipHost, int gossipPort,
-			String password) {
+	public JGroupsManager(Node node, int publicPort, String publicIP, String gossipHost, int gossipPort, String password) {
 		this.node = node;
 		this.publicPort = publicPort;
 		this.publicIP = publicIP;
@@ -130,6 +161,7 @@ public class JGroupsManager {
 
 	/* Private methods */
 
+	// Set the manager to a pre-connect state
 	private void reset() throws Exception {
 		jch = new JChannel(false);
 		jch.setDiscardOwnMessages(true);
@@ -157,40 +189,36 @@ public class JGroupsManager {
 
 		// Add protocols
 		stack.addProtocol(
-				new TCP().setValue("bind_port", publicPort).setValue("use_send_queues", true)
-						.setValue("sock_conn_timeout", 60).setValue("external_addr", publicIPAddr)
-						.setValue("bind_addr", InetAddress.getByName("0.0.0.0"))
-						.setValue("thread_pool_rejection_policy", "run")
-						.setValue("oob_thread_pool_rejection_policy", "run"))
-				.addProtocol(new TCPGOSSIP().setValue("initial_hosts", initial_hosts))
-				.addProtocol(new MERGE2())
-				.addProtocol(new FD().setValue("timeout", 5000).setValue("max_tries", 2))
-				/*
-				 * .addProtocol(new FD_SOCK().setValue("external_addr",
-				 * publicIP))
-				 */
-				.addProtocol(new VERIFY_SUSPECT())
-				/*
-				 * .addProtocol( new
-				 * ENCRYPT().setValue("encrypt_entire_message",
-				 * false).setValue("symInit", 128) .setValue("symAlgorithm",
-				 * "AES/ECB/PKCS5Padding").setValue("asymInit", 512)
-				 * .setValue("asymAlgorithm", "RSA"))
-				 */
-				.addProtocol(new NAKACK2().setValue("use_mcast_xmit", false).setValue("discard_delivered_msgs", true))
-				// .addProtocol(new UNICAST())
-				.addProtocol(new STABLE())
-				.addProtocol(new GMS().setValue("print_local_addr", true).setValue("view_bundling", true))
-				.addProtocol(authProt).addProtocol(new UFC()).addProtocol(new MFC()).addProtocol(new FRAG2())
-				.addProtocol(new COMPRESS());
+			new TCP().setValue("bind_port", publicPort).setValue("use_send_queues", true)
+					.setValue("sock_conn_timeout", 60).setValue("external_addr", publicIPAddr)
+					.setValue("bind_addr", InetAddress.getByName("0.0.0.0"))
+					.setValue("thread_pool_rejection_policy", "run")
+					.setValue("oob_thread_pool_rejection_policy", "run"))
+			.addProtocol(new TCPGOSSIP().setValue("initial_hosts", initial_hosts))
+			.addProtocol(new MERGE2())
+			.addProtocol(new FD().setValue("timeout", 5000).setValue("max_tries", 2))
+			/* Removed because it's spammy and requires an extra port which is a hassle in a WAN environment.
+			 * .addProtocol(new FD_SOCK().setValue("external_addr",
+			 * publicIP))
+			 */
+			.addProtocol(new VERIFY_SUSPECT())
+			.addProtocol(new NAKACK2().setValue("use_mcast_xmit", false).setValue("discard_delivered_msgs", true))
+			// It doesn't seem that we need this.
+			// .addProtocol(new UNICAST())
+			.addProtocol(new STABLE())
+			.addProtocol(new GMS().setValue("print_local_addr", false).setValue("view_bundling", true))
+			.addProtocol(authProt).addProtocol(new UFC()).addProtocol(new MFC()).addProtocol(new FRAG2())
+			.addProtocol(new COMPRESS());
 
 		stack.init();
 	}
 
 	private void send(Message message) throws Exception {
 		/*
-		 * TODO: is there a better way to tell whether we're connected? Maybe
-		 * when we get MASTER_INFO? ... sigh if (jch.isConnected()) {
+		 * Is there a better way to tell whether we're connected? Maybe
+		 * when we get MASTER_INFO? ... sigh
+		 * 
+		 * if (jch.isConnected()) {
 		 * jch.send(message); } else { throw new
 		 * Exception("Tried to send message while disconnected!"); }
 		 */
@@ -245,7 +273,9 @@ public class JGroupsManager {
 				curView = newView;
 				return;
 			}
+			// Send out events depending on the contents of the new view
 			for (Address newPeer : Util.newMembers(curView.getMembers(), newView.getMembers())) {
+				// Newly-connected peers
 				if (newPeer.equals(jch.getAddress()))
 					continue; // Don't trigger for our address, just in case
 				for (JGroupsListener listener : listeners) {
@@ -253,6 +283,7 @@ public class JGroupsManager {
 				}
 			}
 			for (Address lostPeer : Util.leftMembers(curView, newView)) {
+				// Lost peers
 				if (lostPeer.equals(jch.getAddress()))
 					continue;
 				for (JGroupsListener listener : listeners) {
@@ -263,6 +294,8 @@ public class JGroupsManager {
 		}
 
 		public void suspect(Address mbr) {
+			// We suspect a peer might have left. May not be called often with our
+			// current protocol stack config.
 			if (mbr.equals(jch.getAddress()))
 				return; // Don't trigger for our address, just in case
 			for (JGroupsListener listener : listeners) {

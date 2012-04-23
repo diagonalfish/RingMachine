@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.common;
 
 import java.io.Serializable;
@@ -102,20 +134,29 @@ public class RMPacket implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Create an empty packet of the given type.
+	 * @param type
+	 */
 	public RMPacket(RMPacket.Type type) {
 		this.type = type;
 		data = new HashMap<String, Serializable>();
 	}
 
+	/**
+	 * Get the type of this packet.
+	 * @return
+	 */
 	public RMPacket.Type getType() {
 		return type;
 	}
 
-	public boolean hasDataVal(String key) {
-		return data.containsKey(key);
-	}
-
-	public void setDataVal(String key, Serializable value) {
+	/**
+	 * Set the given data property. 
+	 * @param key
+	 * @param value
+	 */
+	public void setProperty(String key, Serializable value) {
 		data.put(key.toLowerCase(), value);
 	}
 
@@ -166,6 +207,10 @@ public class RMPacket implements Serializable {
 		return (RMFile)d;
 	}
 
+	/**
+	 * Print out information about this packet to the console. Useful
+	 * for debugging.
+	 */
 	public void print() {
 		System.out.println("Packet Type: " + type.name());
 		System.out.println("Data:");

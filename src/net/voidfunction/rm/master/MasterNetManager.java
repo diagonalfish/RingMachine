@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.master;
 
 import java.util.ArrayList;
@@ -7,6 +39,10 @@ import org.jgroups.Address;
 
 import net.voidfunction.rm.common.*;
 
+/**
+ * Network overlay/protocol manager for master node. Receives events from JGroups
+ * and handles sending packets as needed.
+ */
 public class MasterNetManager extends JGroupsListener {
 
 	private MasterNode node;
@@ -54,35 +90,35 @@ public class MasterNetManager extends JGroupsListener {
 	public void packetSendMasterInfo(Address target) {
 		node.getLog().info("Sending MASTER_INFO to new worker " + target);
 		RMPacket packet = new RMPacket(RMPacket.Type.MASTER_INFO);
-		packet.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
+		packet.setProperty("httpport", node.getConfig().getInt("port.http", 8080));
 		sendPacket(target, packet);
 	}
 	
 	public void packetSendYourFiles(Address target, ArrayList<String> fileIds) {
 		node.getLog().info("Sending YOUR_FILES to node " + target);
 		RMPacket packet = new RMPacket(RMPacket.Type.YOUR_FILES);
-		packet.setDataVal("files", fileIds);
+		packet.setProperty("files", fileIds);
 		sendPacket(target, packet);
 	}
 	
 	public void packetSendGetFile(Address target, RMFile file) {
 		node.getLog().info("Sending GET_FILE to node " + target);
 		RMPacket packet = new RMPacket(RMPacket.Type.GET_FILE);
-		packet.setDataVal("file", file);
+		packet.setProperty("file", file);
 		sendPacket(target, packet);
 	}
 	
 	public void packetSendMayRemoveFile(Address target, String fileId) {
 		node.getLog().info("Sending MAY_REMOVE_FILE to node " + target);
 		RMPacket packet = new RMPacket(RMPacket.Type.MAY_REMOVE_FILE);
-		packet.setDataVal("fileid", fileId);
+		packet.setProperty("fileid", fileId);
 		sendPacket(target, packet);
 	}
 	
 	public void packetSendDeleteFile(String fileId) {
 		node.getLog().info("Broadcasting DELETE_FILE");
 		RMPacket packet = new RMPacket(RMPacket.Type.DELETE_FILE);
-		packet.setDataVal("fileid", fileId);
+		packet.setProperty("fileid", fileId);
 		broadcastPacket(packet);
 	}
 	

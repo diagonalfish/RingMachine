@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.master;
 
 import java.io.File;
@@ -16,6 +48,9 @@ import org.apache.commons.codec.binary.Hex;
 import net.sf.jtpl.Template;
 import net.voidfunction.rm.common.*;
 
+/**
+ * Servlet that provides a simple administration interface for the master node.
+ */
 @MultipartConfig
 public class AdminServlet extends HttpServlet {
 
@@ -28,8 +63,8 @@ public class AdminServlet extends HttpServlet {
 		this.templateDir = templateDir;
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-		IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// Set headers to prevent caching of pages
 		response.setHeader("Date", HTTPUtils.getServerTime(0));
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
@@ -37,6 +72,7 @@ public class AdminServlet extends HttpServlet {
 		response.setHeader("Cache-Control", "no-cache, must-revalidate, max-age=0");
 		response.setHeader("Pragma", "no-cache");
 
+		// Retrieve output for the correct page.
 		String page = request.getParameter("page");
 		if (page == null || page.equals("index"))
 			response.getWriter().print(pageIndex(request));
@@ -104,13 +140,13 @@ public class AdminServlet extends HttpServlet {
 			return;
 		
 		// Delete file locally
-		if (!node.getFileRepository().checkFile(id))
+		if (!node.getFileRepository().checkFile(id)) // File doesn't exist?
 			return;
 		
 		node.getLog().info("Deleting file " + id + " (via web).");
 		
 		try {
-		node.getFileRepository().removeFile(id);
+			node.getFileRepository().removeFile(id);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -120,8 +156,7 @@ public class AdminServlet extends HttpServlet {
 	}
 
 	/* File upload */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-		IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setHeader("Date", HTTPUtils.getServerTime(0));
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
@@ -159,6 +194,8 @@ public class AdminServlet extends HttpServlet {
 
 	/* Util */
 
+	// Parse a filename out of the form data.
+	// Thanks to: http://stackoverflow.com/a/2424824
 	private String getFilename(Part part) {
 		for (String cd : part.getHeader("content-disposition").split(";")) {
 			if (cd.trim().startsWith("filename"))
@@ -167,8 +204,7 @@ public class AdminServlet extends HttpServlet {
 		return null;
 	}
 
-	public static String getDuration(long millis) {
-
+	private static String getDuration(long millis) {
 		long days = TimeUnit.MILLISECONDS.toDays(millis);
 		millis -= TimeUnit.DAYS.toMillis(days);
 		long hours = TimeUnit.MILLISECONDS.toHours(millis);

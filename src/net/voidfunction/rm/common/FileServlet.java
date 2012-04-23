@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.common;
 
 import java.io.IOException;
@@ -9,6 +41,11 @@ import javax.servlet.http.*;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
+/**
+ * Servlet whose responsibility it is to act as a download server for all files in the
+ * node's FileRepository. For the master node, it provides hooks to redirect the users
+ * to worker nodes and a means to track downloads.
+ */
 public class FileServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 8461560600264423624L;
@@ -17,17 +54,24 @@ public class FileServlet extends HttpServlet {
 	private FileLocator locator;
 	private FileDownloadListener dlListener;
 
+	/**
+	 * Creates a new FileServlet. locator and dlListener may be null if their
+	 * functionality is not needed (e.g. in worker nodes)
+	 * @param node
+	 * @param locator
+	 * @param dlListener
+	 */
 	public FileServlet(Node node, FileLocator locator, FileDownloadListener dlListener) {
 		this.node = node;
 		this.locator = locator;
 		this.dlListener = dlListener;
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-		IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.getSession().setMaxInactiveInterval(120);
 		response.setHeader("Date", HTTPUtils.getServerTime(0));
 
+		// Parse the filename and the ID out of the URL
 		String[] urlParts = request.getRequestURI().substring(1).split("/");
 		if (urlParts.length < 2) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -38,8 +82,7 @@ public class FileServlet extends HttpServlet {
 		if (urlParts.length > 2)
 			fileName = urlParts[2];
 
-		String logOut = "File " + fileID + " (" + fileName + ") requested by " + request.getRemoteHost()
-			+ " [Result: ";
+		String logOut = "File " + fileID + " (" + fileName + ") requested by " + request.getRemoteHost() + " [Result: ";
 		
 		RMFile file = node.getFileRepository().getFileById(fileID);
 		if (file == null) {
@@ -48,8 +91,7 @@ public class FileServlet extends HttpServlet {
 			node.getLog().info(logOut);
 
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			response.getWriter()
-				.write("<b>404 Not Found</b><br/>Could not find a file with ID " + fileID);
+			response.getWriter().write("<b>404 Not Found</b><br/>Could not find a file with ID " + fileID);
 			return;
 		}
 		
@@ -87,6 +129,7 @@ public class FileServlet extends HttpServlet {
 			String ifModifiedSince = request.getHeader("If-Modified-Since");
 			String ifNoneMatch = request.getHeader("If-None-Match");
 			boolean etagMatch = (ifNoneMatch != null) && (ifNoneMatch.equals(etag));
+			
 			if (ifModifiedSince != null || etagMatch) {
 				response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 				response.setHeader("Last-Modified", ifModifiedSince);
@@ -98,6 +141,7 @@ public class FileServlet extends HttpServlet {
 				response.setContentType(file.getMimetype());
 				response.setHeader("Content-Length", String.valueOf(file.getSize()));
 				
+				// Stream the file data to the output stream using Apache IOUtils
 				InputStream fileIn = node.getFileRepository().getFileData(fileID);
 				IOUtils.copyLarge(fileIn, response.getOutputStream());
 			}

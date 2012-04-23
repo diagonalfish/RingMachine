@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.worker;
 
 import java.util.ArrayList;
@@ -7,6 +39,10 @@ import org.jgroups.Address;
 
 import net.voidfunction.rm.common.*;
 
+/**
+ * Network overlay/protocol manager for worker node. Receives events from JGroups
+ * and handles sending packets as needed.
+ */
 public class WorkerNetManager extends JGroupsListener {
 
 	private WorkerNode node;
@@ -53,8 +89,8 @@ public class WorkerNetManager extends JGroupsListener {
 	public void packetSendWorkerInfo(Address target) {
 		node.getLog().info("Sending WORKER_INFO to master node.");
 		RMPacket packet = new RMPacket(RMPacket.Type.WORKER_INFO);
-		packet.setDataVal("httphost", node.getPublicIP());
-		packet.setDataVal("httpport", node.getConfig().getInt("port.http", 8080));
+		packet.setProperty("httphost", node.getPublicIP());
+		packet.setProperty("httpport", node.getConfig().getInt("port.http", 8080));
 		sendPacket(target, packet);
 	}
 
@@ -65,14 +101,14 @@ public class WorkerNetManager extends JGroupsListener {
 		for (RMFile file : node.getFileRepository().getFileObjects()) {
 			fileIds.add(file.getId());
 		}
-		packet.setDataVal("files", fileIds);
+		packet.setProperty("files", fileIds);
 		sendPacket(target, packet);
 	}
 	
 	public void packetSendGotFile(Address target, String fileid) {
 		node.getLog().info("Sending GOT_FILE to master node.");
 		RMPacket packet = new RMPacket(RMPacket.Type.GOT_FILE);
-		packet.setDataVal("fileid", fileid);
+		packet.setProperty("fileid", fileid);
 		sendPacket(target, packet);
 	}
 	

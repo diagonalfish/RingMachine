@@ -1,3 +1,35 @@
+/*
+ * --------------------------
+ * |    Ring Machine 2      |
+ * |                        |
+ * |         /---\          |
+ * |         |   |          |
+ * |         \---/          |
+ * |                        |
+ * | The Crowdsourced CDN   |
+ * --------------------------
+ * 
+ * Copyright (C) 2012 Eric Goodwin
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package net.voidfunction.rm.common;
 
 import java.io.*;
@@ -6,7 +38,7 @@ import java.util.*;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Stores a list of files and their data. Provies a means to access file
+ * Stores a list of files and their data. Provides a means to access file
  * information and data on demand.
  */
 public class FileRepository {
@@ -33,20 +65,17 @@ public class FileRepository {
 		checkDirectory();
 		String fileDatName = getDataFileName();
 		try {
-			ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(
-				fileDatName)));
+			ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(fileDatName)));
 			Object inObj = in.readObject();
 			fileObjects = (HashMap<String, RMFile>)inObj;
 			in.close();
 		} catch (FileNotFoundException fnfe) {
 			// It's ok if it does not exist.
 			fileObjects = new HashMap<String, RMFile>();
-			node.getLog().info(
-				"File repository list (" + fileDatName + ") not found. Starting with empty list.");
+			node.getLog().info("File repository list (" + fileDatName + ") not found. Starting with empty list.");
 		} catch (ClassNotFoundException e) {
 			// Very unlikely, so we default to empty list
-			node.getLog().warn(
-				"Encountered error loading file  list (" + fileDatName + "). Starting with empty list.");
+			node.getLog().warn("Encountered error loading file  list (" + fileDatName + "). Starting with empty list.");
 			fileObjects = new HashMap<String, RMFile>();
 		}
 		node.getLog().info("File repository (" + fileObjects.size() + " files) loaded.");
@@ -105,8 +134,7 @@ public class FileRepository {
 	}
 
 	/**
-	 * Remove all files whose ids are not contained in the given
-	 * list of Strings.
+	 * Remove all files whose ids are not contained in the given list of Strings.
 	 * @param keepFiles
 	 */
 	public synchronized int removeAllExcept(List<Object> keepFiles) throws IOException {
@@ -141,14 +169,19 @@ public class FileRepository {
 	}
 
 	/**
-	 * Return a list of all files we know about.
+	 * Return a list of all files this FileRepository knows about.
 	 * 
-	 * @return
+	 * @return list of RMFiles
 	 */
 	public synchronized Collection<RMFile> getFileObjects() {
 		return fileObjects.values();
 	}
 
+	/**
+	 * Return the number of files known by this FileRepository.
+	 * 
+	 * @return count
+	 */
 	public synchronized int getFileCount() {
 		return fileObjects.size();
 	}
@@ -248,6 +281,11 @@ public class FileRepository {
 		fileObj.delete();
 	}
 
+	/**
+	 * Returns the name of the file the repository uses to store serialized
+	 * file metadata objects.
+	 * @return
+	 */
 	public String getDataFileName() {
 		return getFileName("files.dat");
 	}
