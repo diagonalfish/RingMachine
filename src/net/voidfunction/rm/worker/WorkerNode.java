@@ -98,7 +98,7 @@ public class WorkerNode extends Node {
 		RMHTTPServer httpserver = new RMHTTPServer(httpPort);
 		
 		// File servlet
-		httpserver.addServlet("/files/*", new FileServlet(this, new FileLocator(), null));
+		httpserver.addServlet("/files/*", new FileServlet(this, null, null));
 		
 		// Run web server
 		try {

@@ -107,12 +107,12 @@ public class FileRepository {
 	/**
 	 * Remove all files whose ids are not contained in the given
 	 * list of Strings.
-	 * @param ids
+	 * @param keepFiles
 	 */
-	public synchronized int removeAllExcept(List<String> ids) throws IOException {
+	public synchronized int removeAllExcept(List<Object> keepFiles) throws IOException {
 		int counter = 0;
 		for (String id : new ArrayList<String>(fileObjects.keySet())) {
-			if (!ids.contains(id)) {
+			if (!keepFiles.contains(id)) {
 				removeFile(id);
 				counter++;
 			}

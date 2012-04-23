@@ -10,7 +10,7 @@ public class ReplicationManager implements FileDownloadListener {
 
 	private MasterNode node;
 	private int interval, window;
-	final int minReps, maxReps;
+	private final int minReps, maxReps;
 
 	private Timer timer;
 
@@ -26,7 +26,11 @@ public class ReplicationManager implements FileDownloadListener {
 		interval = node.getConfig().getInt("rep.interval", 60);
 		window = node.getConfig().getInt("rep.window", 900);
 		minReps = node.getConfig().getInt("rep.min", 1);
-		maxReps = node.getConfig().getInt("rep.max", 3);
+		
+		int tempMaxReps = node.getConfig().getInt("rep.max", 3);
+		if (tempMaxReps == minReps)
+			tempMaxReps++;
+		maxReps = tempMaxReps;
 
 		lastPeriodDLs = new HashMap<RMFile, Integer>();
 		movingAvgs = new HashMap<RMFile, MovingAverage>();
@@ -44,77 +48,101 @@ public class ReplicationManager implements FileDownloadListener {
 	}
 
 	protected synchronized Map<Address, ReplicationDecision> getDecisions() {
-		node.getLog().debug("Determining replication decisions.");
+		node.getLog().info("Running replication algorithm.");
 
 		Map<Address, ReplicationDecision> decisions = new HashMap<Address, ReplicationDecision>();
 
-		ArrayList<RMFile> files = new ArrayList<RMFile>(node.getFileRepository().getFileObjects());
+		Collection<RMFile> filesColl = node.getFileRepository().getFileObjects();
+		RMFile[] files = filesColl.toArray(new RMFile[filesColl.size()]);
 
-		node.getLog().debug("Checking that all files have minimum replicas (" + minReps + ").");
+		//node.getLog().debug("Checking that all files have minimum replicas (" + minReps + ").");
+		
 		for (RMFile file : files) {
-			// Let's at least check the minimum replicas requirement is
-			// satisfied
+			// Let's at least check the minimum replicas requirement is satisfied
 			int reps = node.getWorkerDirectory().countWorkersWithFile(file.getId());
 			int needReps = minReps - reps;
-			node.getLog().debug("File " + file.getId() + " needs " + needReps + " more replicas.");
+			//node.getLog().debug("File " + file.getId() + " needs " + needReps + " more replicas.");
 			if (needReps > 0) {
 				assignWorkers(decisions, file, needReps, true);
 			}
 		}
 
-		/*
-		 * if (minReps == maxReps) return decisions; // No need for fancy
-		 * scaling math...
-		 * 
-		 * HashMap<RMFile, MovingAverage> newMovingAvgs = new HashMap<RMFile,
-		 * MovingAverage>();
-		 * 
-		 * double minAvg = -1.0; double maxAvg = -1.0; for(RMFile file : files)
-		 * { MovingAverage avg = movingAvgs.get(file); if (avg == null) avg =
-		 * new MovingAverage();
-		 * 
-		 * newMovingAvgs.put(file, avg);
-		 * 
-		 * if (lastPeriodDLs.containsKey(file))
-		 * avg.update(lastPeriodDLs.get(file).doubleValue()); else
-		 * avg.update(0.0);
-		 * 
-		 * if (minAvg < 0) { minAvg = avg.getAverage(); maxAvg =
-		 * avg.getAverage(); } else { if (avg.getAverage() < minAvg) minAvg =
-		 * avg.getAverage(); else if (avg.getAverage() > maxAvg) maxAvg =
-		 * avg.getAverage(); } }
-		 * 
-		 * movingAvgs = newMovingAvgs;
-		 * 
-		 * if (minReps == maxReps) maxReps++; // Prevent divide by zero
-		 * 
-		 * for (RMFile file : files) { int reps =
-		 * node.getWorkerDirectory().countWorkersWithFile(file.getId());
-		 * 
-		 * double avg = movingAvgs.get(file).getAverage(); double scaledAvg =
-		 * (((avg - minReps) / (maxReps - minReps)) * 2.0) - 1.0; int targetReps
-		 * = (int)Math.floor(scaledAvg + 0.5d);
-		 * 
-		 * int needReps = targetReps - reps; if (needReps < 0)
-		 * assignWorkers(decisions, file, -needReps, false); else if (needReps >
-		 * 0) assignWorkers(decisions, file, needReps, true); }
-		 * 
-		 * lastPeriodDLs.clear();
-		 */
+		HashMap<RMFile, MovingAverage> newMovingAvgs = new HashMap<RMFile, MovingAverage>();
+		double minAvg = -1.0;
+		double maxAvg = -1.0;
+			
+		for(RMFile file : files) {
+			MovingAverage avg = movingAvgs.get(file);
+			if (avg == null) {
+				avg = new MovingAverage();
+				avg.update(0);
+			}
+  
+			newMovingAvgs.put(file, avg);
+			
+			int dls = 0;
+			if (lastPeriodDLs.containsKey(file))
+				dls = lastPeriodDLs.get(file);
+			
+			avg.update((double)dls);
+  
+			if (minAvg < 0) {
+				minAvg = avg.getAverage();
+				maxAvg = avg.getAverage();
+			}
+			else {
+				if (avg.getAverage() < minAvg) minAvg =
+					avg.getAverage();
+				else if (avg.getAverage() > maxAvg)
+					maxAvg = avg.getAverage();
+			}
+		
+		}
+		
+		//node.getLog().debug("MIN AVG: " + minAvg + ", MAX AVG: " + maxAvg);
+		//node.getLog().debug("MIN REP: " + minReps + ", MAX REP: " + maxReps);
+		
+		movingAvgs = newMovingAvgs;
+		
+		if (minAvg == maxAvg) {
+			// Can't scale values, give up
+			// node.getLog().debug("Max avg == Min avg, quitting");
+			return decisions;
+		}
+		
+		movingAvgs = newMovingAvgs;
+			
+		for (RMFile file : files) {
+			int reps = node.getWorkerDirectory().countWorkersWithFile(file.getId());
 
+			double avg = movingAvgs.get(file).getAverage();
+			double scaledAvg = ( (((double)maxReps - minReps) * (avg - minAvg)) / (maxAvg - minAvg) ) + minReps;
+			int targetReps = (int)Math.floor(scaledAvg + 0.5d);
+			int needReps = targetReps - reps;
+			
+			//node.getLog().debug("File " + file.getId() + ": avg " + avg + ", scaled avg " +
+			//	scaledAvg + ", target reps " + targetReps + ", reps needed " + needReps);
+			
+			if (needReps < 0)
+				assignWorkers(decisions, file, -needReps, false);
+			else if (needReps > 0)
+				assignWorkers(decisions, file, needReps, true);
+		}
+			
+		lastPeriodDLs.clear();
 		return decisions; // TODO
 	}
 
 	private void assignWorkers(Map<Address, ReplicationDecision> decisions, RMFile file, int targetAmt,
 		boolean add) {
-		node.getLog().debug("Assigning workers (up to maximum of " + targetAmt + ")");
+		//node.getLog().debug("Assigning workers (up to maximum of " + targetAmt + ")");
 		List<Address> workers;
 		if (add)
 			workers = node.getWorkerDirectory().getWorkersWithoutFile(file.getId());
 		else
 			workers = node.getWorkerDirectory().getWorkersWithFile(file.getId());
 
-		node.getLog().debug("Available workers: " + workers.size());
+		//node.getLog().debug("Available workers: " + workers.size());
 
 		int assignments = 0;
 		int index = 0;
@@ -122,14 +150,14 @@ public class ReplicationManager implements FileDownloadListener {
 		while (assignments < targetAmt && index < workers.size()) {
 			Address worker = workers.get(index);
 			if (!decisions.containsKey(worker)) {
-				node.getLog().debug("Assigning " + worker);
+				//node.getLog().debug("Assigning " + worker);
 				decisions.put(worker, new ReplicationDecision(file, add));
 				assignments++;
 			}
 			index++;
 		}
 
-		node.getLog().debug("Done assigning workers.");
+		//node.getLog().debug("Done assigning workers.");
 	}
 
 	private class ReplicationManagerTask extends TimerTask {
@@ -144,7 +172,7 @@ public class ReplicationManager implements FileDownloadListener {
 			Map<Address, ReplicationDecision> decisions = mgr.getDecisions();
 			for (Address worker : decisions.keySet()) {
 				ReplicationDecision dec = decisions.get(worker);
-				node.getLog().debug("Decision: " + worker + " -> " + dec.getFile().getId());
+				//node.getLog().debug("Decision: " + worker + " -> " + dec.getFile().getId());
 				
 				// Send out packets to the workers
 				if (dec.shouldAdd())

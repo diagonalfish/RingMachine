@@ -50,7 +50,6 @@ public class WorkerPacketHandler {
 			node.getNetManager().packetSendMyFiles(source);
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void handle_YOUR_FILES(Address source, RMPacket packet) {
 		node.getLog().info("Received YOUR_FILES from node " + source + ".");
 		if (!source.equals(node.getMasterAddr())) {
@@ -58,9 +57,8 @@ public class WorkerPacketHandler {
 			return;
 		}
 		
-		List<Object> tempKeepFiles = packet.getList("files");
-		if (tempKeepFiles == null) return;
-		List<String> keepFiles = (List<String>)(List)tempKeepFiles; // Type erasure...
+		List<Object> keepFiles = packet.getList("files");
+		if (keepFiles == null) return;
 		try {
 			int deleted = node.getFileRepository().removeAllExcept(keepFiles);
 			node.getLog().info("Removed " + deleted + " unneeded files.");
@@ -73,8 +71,14 @@ public class WorkerPacketHandler {
 		node.getLog().info("Received GET_FILE from node " + source + ".");
 		RMFile file = packet.getFile("file");
 		
-		FileFetcher fetcher = new FileFetcher(node, file);
-		fetcher.start();
+		if (node.getFileRepository().checkFile(file.getId()))
+			// We already have that file
+			node.getNetManager().packetSendGotFile(source, file.getId());
+		
+		else {
+			FileFetcher fetcher = new FileFetcher(node, file);
+			fetcher.start();
+		}
 	}
 
 	private void handle_DELETE_FILE(Address source, RMPacket packet) {

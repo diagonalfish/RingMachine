@@ -6,7 +6,7 @@ import org.jgroups.Address;
 
 import net.voidfunction.rm.common.FileLocator;
 
-public class MasterFileLocator extends FileLocator {
+public class MasterFileLocator implements FileLocator {
 	
 	private MasterNode node;
 	

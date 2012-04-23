@@ -41,18 +41,19 @@ public class MasterPacketHandler {
 			packet.getInteger("httpport"));
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void handle_MY_FILES(Address source, RMPacket packet) {
 		node.getLog().info("Received MY_FILES from node " + source + ".");
 		
 		ArrayList<String> keepFiles = new ArrayList<String>();
 		
-		List<Object> tempKeepFiles = packet.getList("files");
-		if (tempKeepFiles == null) return;
-		List<String> workerFiles = (List<String>)(List)tempKeepFiles; // Type erasure...
+		List<Object> workerFiles = packet.getList("files");
+		if (workerFiles == null) return;
 		
 		// Filter out the files that the worker should keep, and make note of the ones they have.
-		for (String workerFile : workerFiles) {
+		for (Object workerFileObj : workerFiles) {
+			if (!(workerFileObj instanceof String))
+				return;
+			String workerFile = (String)workerFileObj;
 			if (node.getFileRepository().checkFile(workerFile)) {
 				keepFiles.add(workerFile);
 				node.getWorkerDirectory().addWorkerFile(source, workerFile);

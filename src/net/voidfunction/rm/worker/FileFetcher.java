@@ -59,11 +59,12 @@ public class FileFetcher extends Thread {
 		int masterPort = node.getMasterPort();
 		URL url = null;
 		try {
-			url = new URL("http://" + masterHost + ":" + masterPort + "/files/" + file.getId() + "/");
+			url = new URL("http://" + masterHost + ":" + masterPort + "/files/" + file.getId() + "/Worker-Download");
 		} catch (MalformedURLException e1) {
 			// Shouldn't happen :(
 			node.getLog().warn("FileFetcher for " + file.getId() + " failed: URL construction failed.");
 			fetcherEnd(file.getId());
+			return;
 		}
 		
 		// Create a URLConnection and download
@@ -83,6 +84,7 @@ public class FileFetcher extends Thread {
 		} catch (IOException e) {
 			node.getLog().warn("FileFetcher for " + file.getId() + " failed: " + e.getMessage());
 			fetcherEnd(file.getId());
+			return;
 		}
 		
 		node.getNetManager().packetSendGotFile(node.getMasterAddr(), file.getId());

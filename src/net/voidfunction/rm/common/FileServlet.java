@@ -40,9 +40,31 @@ public class FileServlet extends HttpServlet {
 
 		String logOut = "File " + fileID + " (" + fileName + ") requested by " + request.getRemoteHost()
 			+ " [Result: ";
+		
+		RMFile file = node.getFileRepository().getFileById(fileID);
+		if (file == null) {
+			// File  with given ID not found - no redirect for you.
+			logOut += "Not found]";
+			node.getLog().info(logOut);
 
-		String redirURL = (String)request.getSession().getAttribute("fileURL-" + fileID);
-		if (redirURL == null)
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			response.getWriter()
+				.write("<b>404 Not Found</b><br/>Could not find a file with ID " + fileID);
+			return;
+		}
+		
+		boolean workerDL = (fileName.equals("Worker-Download"));
+		if (workerDL)
+			logOut += " (Worker Download) ";
+		
+		// Let the download listener know, if any, but don't count worker downloads
+		if (dlListener != null && !workerDL)
+			dlListener.fileDownloaded(file);
+
+		String redirURL = null;
+		if (locator != null)
+			redirURL = (String)request.getSession().getAttribute("fileURL-" + fileID);
+		if (redirURL == null && locator != null)
 			redirURL = locator.locateURL(fileID, fileName);
 		if (redirURL != null) {
 			node.getLog().debug("Found redirect URL: " + redirURL);
@@ -55,44 +77,29 @@ public class FileServlet extends HttpServlet {
 			response.setHeader("Location", redirURL);
 		} else {
 			// We have to try to find it ourselves
-			RMFile file = node.getFileRepository().getFileById(fileID);
-			if (file == null) {
-				// File not found.
-				logOut += "Not found]";
-				node.getLog().info(logOut);
 
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				response.getWriter()
-					.write("<b>404 Not Found</b><br/>Could not find a file with ID " + fileID);
+			logOut += "Found locally]";
+			node.getLog().info(logOut);
+
+			// Caching magic - we can safely assume the file won't change
+			String etag = Hex.encodeHexString(file.getHash());
+			response.setHeader("ETag", etag);
+			String ifModifiedSince = request.getHeader("If-Modified-Since");
+			String ifNoneMatch = request.getHeader("If-None-Match");
+			boolean etagMatch = (ifNoneMatch != null) && (ifNoneMatch.equals(etag));
+			if (ifModifiedSince != null || etagMatch) {
+				response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+				response.setHeader("Last-Modified", ifModifiedSince);
 			} else {
-				// File found
-				logOut += "Found locally]";
-				node.getLog().info(logOut);
-
-				// Caching magic - we can safely assume the file won't change
-				String etag = Hex.encodeHexString(file.getHash());
-				response.setHeader("ETag", etag);
-				String ifModifiedSince = request.getHeader("If-Modified-Since");
-				String ifNoneMatch = request.getHeader("If-None-Match");
-				boolean etagMatch = (ifNoneMatch != null) && (ifNoneMatch.equals(etag));
-				if (ifModifiedSince != null || etagMatch) {
-					response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-					response.setHeader("Last-Modified", ifModifiedSince);
-				} else {
-					// Let the download listener know
-					if (dlListener != null)
-						dlListener.fileDownloaded(file);
-
-					// Send the HTTP response and file data
-					response.setStatus(HttpServletResponse.SC_OK);
-					response.setHeader("Expires", HTTPUtils.getServerTime(3600));
-					response.setHeader("Cache-Control", "max-age=3600");
-					response.setContentType(file.getMimetype());
-					response.setHeader("Content-Length", String.valueOf(file.getSize()));
-					
-					InputStream fileIn = node.getFileRepository().getFileData(fileID);
-					IOUtils.copyLarge(fileIn, response.getOutputStream());
-				}
+				// Send the HTTP response and file data
+				response.setStatus(HttpServletResponse.SC_OK);
+				response.setHeader("Expires", HTTPUtils.getServerTime(3600));
+				response.setHeader("Cache-Control", "max-age=3600");
+				response.setContentType(file.getMimetype());
+				response.setHeader("Content-Length", String.valueOf(file.getSize()));
+				
+				InputStream fileIn = node.getFileRepository().getFileData(fileID);
+				IOUtils.copyLarge(fileIn, response.getOutputStream());
 			}
 		}
 	}

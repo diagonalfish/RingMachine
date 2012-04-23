@@ -39,6 +39,7 @@
 				<td><b>Type</b></td>
 				<td><b>Size</b></td>
 				<td><b>DL Link</b></td>
+				<td><b>Delete</b></td>
 			</tr>
 			<!-- BEGIN: file -->
 			<tr>
@@ -47,6 +48,7 @@
 				<td>{FILETYPE}</td>
 				<td>{FILESIZE}</td>
 				<td><a href="{DOWNURL}">{DOWNTXT}</a></td>
+				<td><a href="{DELETEURL}">{DELETETXT}</a></td>
 			</tr>
 			<!-- END: file -->  
 		</table>

@@ -1,10 +1,9 @@
 package net.voidfunction.rm.common;
 
 /**
- * Default implementation of a class to locate a file in the network, used by
- * FileServlet.
+ * Interface for object to locate a file in the network, used by FileServlet.
  */
-public class FileLocator {
+public interface FileLocator {
 
 	/**
 	 * Return a URL that the FileServlet using this FileLocator should redirect
@@ -15,8 +14,6 @@ public class FileLocator {
 	 * @param fileName
 	 * @return
 	 */
-	public String locateURL(String fileId, String fileName) {
-		return null;
-	}
+	public String locateURL(String fileId, String fileName);
 
 }
